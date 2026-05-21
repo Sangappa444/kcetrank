@@ -53,7 +53,7 @@ function App() {
       const { data: order } = await axios.post(`${API_BASE_URL}/create-order`);
       
       const options = {
-        key: 'rzp_live_SrJOcCqGBv9JYb', // Using the provided Razorpay Live Key ID
+        key: 'rzp_live_SrtVIpDfWSFozV', // Using the provided Razorpay Live Key ID
         amount: order.amount,
         currency: order.currency,
         name: 'KCET Predictor',
