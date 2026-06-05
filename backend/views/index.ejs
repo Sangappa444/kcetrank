@@ -288,187 +288,49 @@
                 return;
             }
             
-            const rankVal = document.getElementById('rank').value;
-            const catVal = document.getElementById('category').value;
-            const courseVal = document.getElementById('course').value;
-            
-            if (!paymentSuccess) {
-                resultsContainer.innerHTML = `
-                    <div class="payment-panel">
-                        <h2>
-                            <i data-lucide="lock" style="color: #6366f1; width: 24px; height: 24px;"></i>
-                            Unlock Cutoff Report
-                        </h2>
-                        <p class="payment-description">
-                            We evaluated your rank of <strong>${rankVal}</strong> for <strong>${activeCategory}</strong>. We found <strong>${results.length} matching colleges</strong> based on your preferences. Complete payment to download the detailed PDF report.
-                        </p>
-
-                        <div class="payment-details-card">
-                            <div class="payment-detail-item">
-                                <span class="payment-detail-label">Your Rank</span>
-                                <span class="payment-detail-value">${rankVal}</span>
-                            </div>
-                            <div class="payment-detail-item">
-                                <span class="payment-detail-label">Category</span>
-                                <span class="payment-detail-value">${catVal}</span>
-                            </div>
-                            <div class="payment-detail-item">
-                                <span class="payment-detail-label">Matched Options</span>
-                                <span class="payment-detail-value highlight">${results.length}</span>
-                            </div>
+            let cardsHtml = '';
+            results.forEach(result => {
+                cardsHtml += `
+                    <div class="college-card chances-${result.chances}">
+                        <div class="card-header">
+                            <span class="college-code">${result.college_code}</span>
+                            <span class="badge ${result.chances}">${result.chances}</span>
                         </div>
-
-                        <div class="payment-features-list">
-                            <div class="payment-feature-item">
-                                <span class="payment-feature-icon"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Detailed PDF report for <strong>${courseVal || 'All Courses'}</strong></span>
-                            </div>
-                            <div class="payment-feature-item">
-                                <span class="payment-feature-icon"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Accurate KEA cutoff rounds history (2023, 2024, and 2025)</span>
-                            </div>
-                            <div class="payment-feature-item">
-                                <span class="payment-feature-icon"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Admission chances analysis (Safe / Moderate / Tough)</span>
-                            </div>
-                            <div class="payment-feature-item">
-                                <span class="payment-feature-icon"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Region-wise rest of Karnataka and Hyderabad-Karnataka quotas</span>
-                            </div>
+                        <h3 class="college-name">${result.college_name}</h3>
+                        <div class="course-name">
+                            <i data-lucide="book-open" style="width: 14px; height: 14px; display: inline-block; margin-right: 6px; vertical-align: middle;"></i>
+                            ${result.course_name}
                         </div>
-
-                        <button 
-                            onclick="handlePayment()" 
-                            id="pay-btn"
-                            class="btn-pay"
-                        >
-                            <i data-lucide="credit-card" style="width: 18px; height: 18px;"></i>
-                            Pay ₹99 & Download PDF
-                        </button>
-                    </div>
-                `;
-            } else {
-                resultsContainer.innerHTML = `
-                    <div class="payment-panel payment-success-card">
-                        <h2 class="payment-unlocked-header">
-                            <i data-lucide="check-circle-2" style="width: 28px; height: 28px;"></i>
-                            Payment Successful!
-                        </h2>
-                        <p class="payment-description">
-                            Thank you! Your transaction was completed successfully. Your PDF cutoff report has been generated. If the download did not start automatically, please click below.
-                        </p>
                         
-                        <button 
-                            onclick="generatePDF()" 
-                            id="pdf-download-btn"
-                            class="btn" 
-                            style="background: #10b981; min-width: 250px; height: 52px; font-size: 1.05rem;"
-                        >
-                            <i data-lucide="download" style="width: 18px; height: 18px;"></i>
-                            Download Cutoff Report
-                        </button>
+                        <div class="stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Previous Cutoff</span>
+                                <span class="stat-value">${result.cutoff_rank}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Year / Round</span>
+                                <span class="stat-value">${result.year} / R${result.round}</span>
+                            </div>
+                        </div>
                     </div>
                 `;
-            }
-            lucide.createIcons();
-        }
-
-        const loadRazorpayScript = () => {
-            return new Promise((resolve) => {
-                if (window.Razorpay) {
-                    resolve(true);
-                    return;
-                }
-                const script = document.createElement('script');
-                script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-                script.onload = () => resolve(true);
-                script.onerror = () => resolve(false);
-                document.body.appendChild(script);
             });
-        };
 
-        async function handlePayment() {
-            const payBtn = document.getElementById('pay-btn');
-            payBtn.disabled = true;
-            payBtn.innerHTML = 'Processing...';
-            
-            try {
-                const scriptLoaded = await loadRazorpayScript();
-                if (!scriptLoaded) {
-                    alert("Failed to load Razorpay SDK. Please check your internet connection.");
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹99 & Download PDF`;
-                    lucide.createIcons();
-                    return;
-                }
-                
-                // Create order
-                const orderRes = await axios.post('/api/payment/order');
-                const { id: order_id, amount, currency } = orderRes.data;
-                
-                const rankVal = document.getElementById('rank').value;
-                
-                const options = {
-                    key: "rzp_test_SsfEoEMxq5grVv",
-                    amount: amount,
-                    currency: currency,
-                    name: "KCET Predictor",
-                    description: `Unlock Cutoff Report (Rank ${rankVal})`,
-                    order_id: order_id,
-                    handler: async function (response) {
-                        try {
-                            // Verify payment
-                            const verifyRes = await axios.post('/api/payment/verify', {
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature
-                            });
-                            
-                            if (verifyRes.data.status === 'success') {
-                                paymentSuccess = true;
-                                renderResults();
-                                setTimeout(() => {
-                                    generatePDF();
-                                }, 500);
-                            } else {
-                                alert("Payment verification failed.");
-                                payBtn.disabled = false;
-                                payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹99 & Download PDF`;
-                                lucide.createIcons();
-                            }
-                        } catch (verifyErr) {
-                            console.error("Verification error:", verifyErr);
-                            alert("Verification failed: " + (verifyErr.response?.data?.error || verifyErr.message));
-                            payBtn.disabled = false;
-                            payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹99 & Download PDF`;
-                            lucide.createIcons();
-                        }
-                    },
-                    prefill: {
-                        name: "",
-                        email: "",
-                        contact: ""
-                    },
-                    theme: {
-                        color: "#6366f1"
-                    }
-                };
-                
-                const rzp = new window.Razorpay(options);
-                rzp.on('payment.failed', function (resp) {
-                    alert("Payment failed: " + resp.error.description);
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹99 & Download PDF`;
-                    lucide.createIcons();
-                });
-                rzp.open();
-            } catch (err) {
-                console.error("Payment initiation error:", err);
-                alert("Failed to initiate payment: " + (err.response?.data?.error || err.message));
-                payBtn.disabled = false;
-                payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹99 & Download PDF`;
-                lucide.createIcons();
-            }
+            resultsContainer.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="font-weight: 600; font-size: 1.75rem;">
+                        Prediction Results (${results.length} matched)
+                    </h2>
+                    <button onclick="generatePDF()" id="pdf-download-btn" class="btn btn-download" style="background: #10b981; height: auto; padding: 0.6rem 1.2rem; margin-top: 0;">
+                        <i data-lucide="download" style="width: 18px; height: 18px;"></i>
+                        Download ${activeCategory} Cutoff Report
+                    </button>
+                </div>
+                <div class="results-grid">
+                    ${cardsHtml}
+                </div>
+            `;
+            lucide.createIcons();
         }
 
         async function generatePDF() {
