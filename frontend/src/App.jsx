@@ -12,19 +12,7 @@ import './index.css';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
 
-const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
+
 
 function App() {
   const [rank, setRank] = useState('');
@@ -309,70 +297,7 @@ function App() {
     }
   };
 
-  const handlePayment = async () => {
-    setPaymentLoading(true);
-    try {
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        alert("Failed to load Razorpay. Please check your internet connection.");
-        setPaymentLoading(false);
-        return;
-      }
 
-      const backendUrl = API_BASE_URL.endsWith('/api') ? API_BASE_URL.slice(0, -4) : API_BASE_URL;
-      const orderRes = await axios.post(`${backendUrl}/api/payment/order`);
-      const { id: order_id, amount, currency } = orderRes.data;
-
-      const options = {
-        key: "rzp_test_SsfEoEMxq5grVv",
-        amount: amount,
-        currency: currency,
-        name: "KCET Predictor",
-        description: `Unlock Cutoff Report (Rank ${rank})`,
-        order_id: order_id,
-        handler: async function (response) {
-          try {
-            const verifyRes = await axios.post(`${backendUrl}/api/payment/verify`, {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature
-            });
-
-            if (verifyRes.data.status === 'success') {
-              setPaymentSuccess(true);
-              setTimeout(() => {
-                generatePDF();
-              }, 500);
-            } else {
-              alert("Payment verification failed.");
-            }
-          } catch (verifyErr) {
-            console.error("Verification error:", verifyErr);
-            alert("Verification failed: " + (verifyErr.response?.data?.error || verifyErr.message));
-          }
-        },
-        prefill: {
-          name: "",
-          email: "",
-          contact: ""
-        },
-        theme: {
-          color: "#6366f1"
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (resp) {
-        alert("Payment failed: " + resp.error.description);
-      });
-      rzp.open();
-    } catch (err) {
-      console.error("Payment error:", err);
-      alert("Failed to initiate payment: " + (err.response?.data?.error || err.message));
-    } finally {
-      setPaymentLoading(false);
-    }
-  };
 
   return (
     <div className="app-container">
@@ -478,85 +403,48 @@ function App() {
 
       {searched && (
         <div className="results-container">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '3rem', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <h2 style={{ fontWeight: 600, fontSize: '1.75rem' }}>
+              Prediction Results ({results.length} matched)
+            </h2>
+            {results.length > 0 && (
+              <button onClick={generatePDF} className="btn btn-download" style={{ background: '#10b981', height: 'auto', padding: '0.6rem 1.2rem', marginTop: 0 }} disabled={pdfLoading}>
+                <Download size={18} /> {pdfLoading ? 'Generating PDF...' : `Download ${activeCategory} Cutoff Report`}
+              </button>
+            )}
+          </div>
+          
           {loading ? (
             <div className="empty-state">
               <div className="spinner">Evaluating college criteria...</div>
             </div>
           ) : results.length > 0 ? (
-            !paymentSuccess ? (
-              <div className="payment-panel">
-                <h2>
-                  <Lock size={24} style={{ color: '#6366f1' }} />
-                  Unlock Cutoff Report
-                </h2>
-                <p className="payment-description">
-                  We evaluated your rank of <strong>{rank}</strong> for <strong>{activeCategory}</strong>. We found <strong>{results.length} matching colleges</strong> based on your preferences. Complete payment to download the detailed PDF report.
-                </p>
-
-                <div className="payment-details-card">
-                  <div className="payment-detail-item">
-                    <span className="payment-detail-label">Your Rank</span>
-                    <span className="payment-detail-value">{rank}</span>
+            <div className="results-grid">
+              {results.map((result, idx) => (
+                <div key={idx} className={`college-card chances-${result.chances}`}>
+                  <div className="card-header">
+                    <span className="college-code">{result.college_code}</span>
+                    <span className={`badge ${result.chances}`}>{result.chances}</span>
                   </div>
-                  <div className="payment-detail-item">
-                    <span className="payment-detail-label">Category</span>
-                    <span className="payment-detail-value">{category}</span>
+                  <h3 className="college-name">{result.college_name}</h3>
+                  <div className="course-name">
+                    <BookOpen size={14} style={{display:'inline', marginRight:'6px', verticalAlign:'middle'}}/>
+                    {result.course_name}
                   </div>
-                  <div className="payment-detail-item">
-                    <span className="payment-detail-label">Matched Options</span>
-                    <span className="payment-detail-value highlight">{results.length}</span>
-                  </div>
-                </div>
-
-                <div className="payment-features-list">
-                  <div className="payment-feature-item">
-                    <span className="payment-feature-icon"><CheckCircle2 size={16} /></span>
-                    <span>Detailed PDF report for <strong>{selectedCourse || 'All Courses'}</strong></span>
-                  </div>
-                  <div className="payment-feature-item">
-                    <span className="payment-feature-icon"><CheckCircle2 size={16} /></span>
-                    <span>Accurate KEA cutoff rounds history (2023, 2024, and 2025)</span>
-                  </div>
-                  <div className="payment-feature-item">
-                    <span className="payment-feature-icon"><CheckCircle2 size={16} /></span>
-                    <span>Admission chances analysis (Safe / Moderate / Tough)</span>
-                  </div>
-                  <div className="payment-feature-item">
-                    <span className="payment-feature-icon"><CheckCircle2 size={16} /></span>
-                    <span>Region-wise rest of Karnataka and Hyderabad-Karnataka quotas</span>
+                  
+                  <div className="stats">
+                    <div className="stat-item">
+                      <span className="stat-label">Previous Cutoff</span>
+                      <span className="stat-value">{result.cutoff_rank}</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-label">Year / Round</span>
+                      <span className="stat-value">{result.year} / R{result.round}</span>
+                    </div>
                   </div>
                 </div>
-
-                <button 
-                  onClick={handlePayment} 
-                  className="btn-pay" 
-                  disabled={paymentLoading}
-                >
-                  <CreditCard size={18} />
-                  {paymentLoading ? 'Processing...' : 'Pay ₹99 & Download PDF'}
-                </button>
-              </div>
-            ) : (
-              <div className="payment-panel payment-success-card">
-                <h2 className="payment-unlocked-header">
-                  <CheckCircle2 size={28} />
-                  Payment Successful!
-                </h2>
-                <p className="payment-description">
-                  Thank you! Your transaction was completed successfully. Your PDF cutoff report has been generated. If the download did not start automatically, please click below.
-                </p>
-                
-                <button 
-                  onClick={generatePDF} 
-                  className="btn" 
-                  style={{ background: '#10b981', minWidth: '250px', height: '52px', fontSize: '1.05rem' }} 
-                  disabled={pdfLoading}
-                >
-                  <Download size={18} />
-                  {pdfLoading ? 'Generating PDF...' : 'Download Cutoff Report'}
-                </button>
-              </div>
-            )
+              ))}
+            </div>
           ) : (
             <div className="glass-panel empty-state">
               <Compass size={48} className="empty-icon" />
