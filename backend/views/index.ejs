@@ -148,6 +148,41 @@
             'Architecture': 'compass'
         };
 
+        function getCategoryForCourse(courseName) {
+            if (!courseName) return 'Engineering';
+            const name = courseName.toUpperCase();
+            if (name.includes('ARCHITECTURE')) return 'Architecture';
+            if (name.includes('B-PHARMA')) return 'B.Pharm';
+            if (name.includes('PHARMA-D') || name.includes('PHARM-D')) return 'D.Pharm';
+            if (name.includes('VETERINARY') || name.includes('VETER SCI') || name.includes('B.V.SC')) return 'Veterinary';
+            if (name.includes('NURSING')) return 'B.Sc Nursing';
+            if (name.includes('BNYS') || name.includes('NATUROPATHY') || name.includes('YOGA')) return 'BNYS';
+            if (name.includes('PHYSIOTHERAPY') || name.includes('BPT')) return 'BPT';
+            if (name.includes('PROSTHETICS ORTHOTICS') || name.includes('BPO')) return 'BPO';
+            if (name.includes('OPTOMETRY')) return 'BPO';
+            
+            // Agriculture and Farm Sciences
+            if (name.includes('AGRICULTURE') || name.includes('AGRI') || name.includes('FORESTRY') || 
+                name.includes('HORTICULTURE') || name.includes('SERICULTURE') || name.includes('FISHERIES') || 
+                name.includes('FOOD SCI') || name.includes('DAIRY') || name.includes('NUTRITION') || 
+                name.includes('DIETETICS') || name.includes('COMMUNITY SCIENCE') || name.includes('FOOD TECHNOLOGY') || 
+                name.includes('FOOD TECH') || name.includes('AG. ') || name.includes('D.TECH')) {
+                return 'Agriculture';
+            }
+            
+            // Allied Health Sciences
+            if (name.includes('AHS') || name.includes('OPERATION THEATER') || name.includes('OCCUPATIONAL') || 
+                name.includes('AUDIOLOGY') || name.includes('ANAEST') || name.includes('CARDIAC') || 
+                name.includes('TRAUMA') || name.includes('IMAGING') || name.includes('LAB') || 
+                name.includes('NEURO') || name.includes('PERFUSION') || name.includes('RADIOTHERAPY') || 
+                name.includes('RENAL') || name.includes('RESP') || name.includes('HOSP. ADMIN') || 
+                name.includes('RECORD TECH') || name.includes('PUBLIC HEALTH')) {
+                return 'Allied Health Sciences';
+            }
+            
+            return 'Engineering';
+        }
+
         let activeCategory = 'Engineering';
         let categories = [];
         let courses = [];
@@ -242,12 +277,16 @@
 
         function renderCourseCheckboxes() {
             const listContainer = document.getElementById('course-checkbox-list');
-            if (courses.length === 0) {
+            
+            // Filter courses to only include those belonging to the active Category/Stream tab
+            const filteredCourses = courses.filter(c => getCategoryForCourse(c) === activeCategory);
+            
+            if (filteredCourses.length === 0) {
                 listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">No courses available</div>`;
                 return;
             }
             let html = '';
-            courses.forEach(c => {
+            filteredCourses.forEach(c => {
                 const checked = selectedCourses.includes(c) ? 'checked' : '';
                 html += `
                     <label class="checkbox-option" data-value="${c}">
@@ -274,7 +313,7 @@
         function updateCourseTriggerText() {
             const selectedText = document.getElementById('course-selected-text');
             if (selectedCourses.length === 0) {
-                selectedText.textContent = `All Courses`;
+                selectedText.textContent = `All ${activeCategory} Courses`;
             } else if (selectedCourses.length === 1) {
                 selectedText.textContent = selectedCourses[0];
             } else {
