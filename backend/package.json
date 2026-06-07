@@ -14,7 +14,6 @@
     "dotenv": "^17.4.2",
     "ejs": "^6.0.1",
     "express": "^5.2.1",
-    "razorpay": "^2.9.6",
     "sqlite3": "5.1.7"
   },
   "engines": {
