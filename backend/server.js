@@ -94,10 +94,14 @@ app.get('/api/colleges', (req, res) => {
 
 // GET /api/courses
 app.get('/api/courses', (req, res) => {
+    const { category } = req.query;
     const query = 'SELECT DISTINCT course_name FROM cutoffs ORDER BY course_name';
     db.all(query, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        const courses = rows.map(row => row.course_name);
+        let courses = rows.map(row => row.course_name);
+        if (category) {
+            courses = courses.filter(course => getCategoryForCourse(course) === category);
+        }
         res.json(courses);
     });
 });
@@ -111,7 +115,14 @@ app.get('/api/cutoffs', (req, res) => {
     
     if (year) { query += ' AND year = ?'; params.push(year); }
     if (round) { query += ' AND round = ?'; params.push(round); }
-    if (college_code) { query += ' AND college_code = ?'; params.push(college_code); }
+    if (college_code) {
+        const codesList = Array.isArray(college_code) ? college_code : college_code.split(',').filter(Boolean);
+        if (codesList.length > 0) {
+            const placeholders = codesList.map(() => '?').join(',');
+            query += ` AND college_code IN (${placeholders})`;
+            params.push(...codesList);
+        }
+    }
     
     if (category) {
         const categoriesList = Array.isArray(category) ? category : category.split(',').filter(Boolean);
