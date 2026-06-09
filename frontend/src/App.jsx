@@ -42,6 +42,9 @@ function App() {
   const [courseSearchQuery, setCourseSearchQuery] = useState('');
   const [isShowAllCourses, setIsShowAllCourses] = useState(false);
   
+  // Cache state for instant PDF download
+  const [cachedCutoffs, setCachedCutoffs] = useState([]);
+  
   // FAQ state
   const [faqExpanded, setFaqExpanded] = useState({});
 
@@ -184,7 +187,26 @@ function App() {
         }
       });
       
-      setResults(Object.values(uniqueResults));
+      const finalResults = Object.values(uniqueResults);
+      setResults(finalResults);
+
+      // Pre-fetch all cutoff history for PDF reports in the background
+      if (finalResults.length > 0) {
+        const uniqueCodes = Array.from(new Set(finalResults.map(r => r.college_code)));
+        axios.get(`${API_BASE_URL}/cutoffs`, {
+          params: {
+            college_code: uniqueCodes.join(','),
+            category: selectedCategories.join(','),
+            course_category: activeCategory
+          }
+        }).then(res => {
+          setCachedCutoffs(res.data);
+        }).catch(err => {
+          console.error("Background pre-fetch of cutoffs failed:", err);
+        });
+      } else {
+        setCachedCutoffs([]);
+      }
     } catch (error) {
       console.error("Prediction error:", error);
     } finally {
@@ -342,16 +364,20 @@ function App() {
       const uniqueCodes = Array.from(new Set(itemsToPrint.map(r => r.college_code)));
       const categoriesQuery = selectedCategories.join(',');
       
-      // 2. Fetch only the necessary historical rows (extremely fast)
-      const response = await axios.get(`${API_BASE_URL}/cutoffs`, {
-        params: {
-          college_code: uniqueCodes.join(','),
-          category: categoriesQuery,
-          course_category: activeCategory
-        }
-      });
-      
-      const cutoffRows = response.data;
+      // 2. Retrieve from background cache or fetch dynamically if not cached/shortlisted
+      let cutoffRows = [];
+      if (type === 'results' && cachedCutoffs.length > 0) {
+        cutoffRows = cachedCutoffs;
+      } else {
+        const response = await axios.get(`${API_BASE_URL}/cutoffs`, {
+          params: {
+            college_code: uniqueCodes.join(','),
+            category: categoriesQuery,
+            course_category: activeCategory
+          }
+        });
+        cutoffRows = response.data;
+      }
       
       // 3. Group cutoff data by college_code + course_name + category (100% accurate alignment)
       const grouped = {};
