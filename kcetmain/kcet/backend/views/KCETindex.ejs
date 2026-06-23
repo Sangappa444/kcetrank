@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- 1. Highly Optimized Title Tag (Crucial for Ranking) -->
+  <title>Vidyari KCET College Predictor 2026 | Official KEA Rank Options</title>
+
+  <!-- 2. Compelling Meta Description (Crucial for Click-Through Rates) -->
+  <meta name="description"
+    content="Discover your exact college chances with Vidyari's KCET College Predictor. We analyze 3 years of official KEA cutoff data to accurately predict your engineering or medical seat." />
+
+  <!-- 3. Smart Keyword Targeting (Keep it limited to high-impact phrases) -->
+  <meta name="keywords"
+    content="Vidyari, KCET college predictor, KEA option entry, KCET mock allotment, Karnataka engineering colleges, KCET cutoff ranks, KCET 2026, SNQ quota" />
+
+  <!-- 4. Canonical URL (Prevents duplicate content penalties) -->
+  <link rel="canonical" href="https://vidyari.com/" />
+
+  <!-- 5. Open Graph Tags (For beautiful sharing on WhatsApp, Facebook, LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vidyari.com/" />
+  <meta property="og:title" content="Vidyari KCET College Predictor | Know Your Exact College" />
+  <meta property="og:description"
+    content="Stop guessing your future. Use Vidyari's proprietary algorithm based on hidden KEA data to secure the absolute best college for your rank." />
+  <meta property="og:image" content="https://vidyari.com/kcet/images/social-preview-image.jpg" />
+  <!-- Make sure to add a nice preview image here -->
+  <meta property="og:site_name" content="Vidyari" />
+
+  <!-- 6. Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Vidyari KCET College Predictor | Official KEA Data" />
+  <meta name="twitter:description"
+    content="Find out exactly which engineering or medical college you can get into with your KCET rank." />
+  <meta name="twitter:image" content="https://vidyari.com/kcet/images/social-preview-image.jpg" />
+
+  <!-- 7. Schema.org Markup (JSON-LD) - THIS IS THE SECRET WEAPON -->
+  <!-- This tells Google exactly what your tool is, making it eligible for rich search results -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Vidyari KCET College Predictor",
+    "url": "https://vidyari.com/",
+    "description": "An advanced prediction tool that uses historical KEA cutoff data to help Karnataka students find their optimal college for engineering and medical courses.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "99.00",
+      "priceCurrency": "INR"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Vidyari",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://vidyari.com/kcet/images/FreeSample-Vectorizer-io-collaborate.svg"
+      }
+    }
+  }
+  </script>
+
+  <!-- Existing External Resources & Verification -->
+
+  <link rel="stylesheet" href="/kcet/css/KCETstyle.css?v=12" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Keep all your existing CSS styles below this line -->
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* --- TICKER SECTION STYLES --- */
+    .ticker-section {
+      width: 100%;
+      max-width: 1200px;
+      padding: 80px 20px 20px 20px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .section-title {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: #4f46e5;
+      /* Professional Accent Indigo */
+    }
+
+    .section-subtitle {
+      margin: 0 0 50px 0;
+      font-size: 36px;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.5px;
+    }
+
+    .ticker-container {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Blur gradients that blend into background color */
+    .ticker-container::before,
+    .ticker-container::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 150px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .ticker-container::before {
+      left: 0;
+      background: linear-gradient(to right, #fafafa 10%, transparent);
+    }
+
+    .ticker-container::after {
+      right: 0;
+      background: linear-gradient(to left, #fafafa 10%, transparent);
+    }
+
+    .ticker-track {
+      display: flex;
+      width: calc(240px * 20);
+      animation: scroll 35s linear infinite;
+    }
+
+    .ticker-track:hover {
+      animation-play-state: paused;
+    }
+
+    .ticker-item {
+      width: 240px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      flex-shrink: 0;
+      padding: 10px;
+      box-sizing: border-box;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .logo-box {
+      width: 100%;
+      height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo-box img {
+      max-width: 120px;
+      max-height: 100%;
+      object-fit: contain;
+      filter: grayscale(100%) opacity(60%);
+      transition: all 0.3s ease;
+    }
+
+    .text-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+    }
+
+    .college-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      text-align: center;
+    }
+
+    .college-stream {
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .ticker-item:hover .logo-box img {
+      filter: grayscale(0%) opacity(100%);
+      transform: scale(1.05);
+    }
+
+    .ticker-item:hover .text-container {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes scroll {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(calc(-240px * 10));
+      }
+    }
+
+    /* --- REVIEWS SECTION STYLES --- */
+    .reviews-section {
+      width: 100%;
+      max-width: 1200px;
+      padding: 60px 20px 100px 20px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 40px;
+      text-align: left;
+    }
+
+    .review-card {
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .review-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+      border-color: #d1d5db;
+    }
+
+    .review-stars {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .star-icon {
+      width: 18px;
+      height: 18px;
+      fill: #fbbf24;
+      stroke: #fbbf24;
+    }
+
+    .review-text {
+      font-size: 15px;
+      color: #374151;
+      line-height: 1.6;
+      margin: 0 0 24px 0;
+      flex-grow: 1;
+    }
+
+    .reviewer-profile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .reviewer-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      background-color: #f3f4f6;
+    }
+
+    .reviewer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .reviewer-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .reviewer-details {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    /* --- MULTI-SELECT DROPDOWN STYLES --- */
+    .multi-select-container {
+      position: relative;
+    }
+
+    .multi-select-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      gap: 8px;
+      min-height: 40px;
+      transition: all 0.2s ease;
+    }
+
+    .multi-select-trigger:hover {
+      border-color: #d1d5db;
+      background: #f9fafb;
+    }
+
+    .multi-select-trigger.active {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .multi-select-trigger .selected-text {
+      flex: 1;
+      font-size: 14px;
+      color: #111827;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: calc(100% - 24px);
+    }
+
+    .multi-select-dropdown {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(5px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .close-modal-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .close-modal-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #f3f4f6;
+      background: #f8fafc;
+    }
+
+    .apply-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .apply-btn:hover {
+      background: #4338ca;
+    }
+
+    .apply-btn:active {
+      transform: scale(0.98);
+    }
+
+    @keyframes modalSlideUp {
+      from {
+        transform: translateY(20px) scale(0.95);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .dropdown-search-wrapper {
+      padding: 8px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .dropdown-search {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .dropdown-search:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .checkbox-list-controls {
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .control-link {
+      background: none;
+      border: none;
+      color: #6366f1;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .control-link:hover {
+      background: #f3f4f6;
+      color: #4f46e5;
+    }
+
+    .checkbox-list {
+      overflow-y: auto;
+      max-height: 40vh;
+      padding: 4px;
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: flex-start;
+      padding: 10px 12px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      gap: 10px;
+      font-size: 14px;
+      color: #374151;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .checkbox-option:last-child {
+      border-bottom: none;
+    }
+
+    .checkbox-option:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .checkbox-option input[type="checkbox"] {
+      cursor: pointer;
+      accent-color: #6366f1;
+      margin-top: 3px;
+    }
+
+    .checkbox-option span {
+      flex: 1;
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .recent-search-pill {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+
+    .recent-search-pill:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+      transform: translateY(-1px);
+    }
+
+    .download-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .download-card-header {
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.4;
+    }
+
+    .download-card-btn {
+      background: #10b981;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .download-card-btn:hover {
+      background: #059669;
+      transform: translateY(-1px);
+    }
+
+    .download-card-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Unlocked Button State */
+    .btn-unlocked {
+      background: linear-gradient(135deg, #0F9D58, #0b8043) !important;
+      box-shadow: 0 4px 15px rgba(15, 157, 88, 0.4) !important;
+    }
+
+    .btn-unlocked:hover {
+      box-shadow: 0 6px 20px rgba(15, 157, 88, 0.5) !important;
+      transform: translateY(-2px);
+    }
+
+    /* --- NAVBAR STYLES --- */
+    .top-navbar {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(229, 231, 235, 0.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 14px 0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 800;
+      color: #1e1b4b;
+      letter-spacing: -0.5px;
+    }
+    .nav-auth {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-login-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      padding: 8px 18px;
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px -2px rgba(79, 70, 229, 0.3);
+      transition: all 0.2s ease;
+    }
+    .nav-login-btn:hover {
+      box-shadow: 0 6px 16px -2px rgba(79, 70, 229, 0.4);
+      transform: translateY(-1px);
+    }
+    .nav-user-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .nav-user-details {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #475569;
+    }
+    .nav-user-name {
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .sub-badge {
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .sub-badge.free {
+      background: #f1f5f9;
+      color: #64748b;
+      border: 1px solid #cbd5e1;
+    }
+    .sub-badge.basic {
+      background: #eff6ff;
+      color: #3b82f6;
+      border: 1px solid #bfdbfe;
+    }
+    .sub-badge.pro {
+      background: #fffbeb;
+      color: #d97706;
+      border: 1px solid #fde68a;
+    }
+    .sub-badge.ultra-pro {
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      color: #7c3aed;
+      border: 1px solid #ddd6fe;
+    }
+    .nav-logout-btn {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .nav-logout-btn:hover {
+      background: #fee2e2;
+    }
+
+    /* Mobile Responsive Top Nav */
+    @media (max-width: 768px) {
+      .nav-container {
+        padding: 0 16px;
+      }
+      .nav-brand span {
+        font-size: 18px;
+      }
+      .nav-login-btn span {
+        display: none;
+      }
+      .nav-login-btn {
+        padding: 8px 12px;
+      }
+      .nav-user-details > span:first-child {
+        display: none; /* Hide 'Hi, ' part */
+      }
+      .nav-user-name {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sub-badge {
+        display: none; /* Hide badge on mobile to save space */
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="top-navbar">
+    <div class="nav-container">
+      <a href="/kcet" class="nav-brand">
+        <i data-lucide="graduation-cap" style="width: 26px; height: 26px; color: #4f46e5;"></i>
+        <span>Vidyari</span>
+      </a>
+      <div class="nav-auth" id="nav-auth">
+        <a href="/kcet/login" class="nav-login-btn">
+          <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+          <span>Login / Register</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="app-container"> <!-- Changed from div to main for SEO structure -->
+    <img src="/kcet/images/FreeSample-Vectorizer-io-collaborate.svg" width="50%" height="auto"
+      alt="Vidyari and KEA Collaboration Tool" class="background-graphic" />
+    <header>
+      <!-- Ensure the main H1 tag contains primary keywords organically -->
+      <h1>Vidyari: The Ultimate KCET College Predictor</h1>
+      <p class="subtitle">Our proprietary algorithm uses 3 years of hidden KEA data to accurately predict the absolute
+        best colleges you can unlock with your rank.</p>
+    </header>
+
+
+
+    <section class="category-tabs-container"> <!-- Changed to section for SEO structure -->
+      <h2 class="section-title">Select Admission Stream</h2>
+      <div class="category-tabs" id="tabs-container">
+      </div>
+    </section>
+
+    <div class="hero-section">
+      <div class="material-panel">
+        <form class="search-form" id="prediction-form">
+          <div class="form-group region-selector-group" style="grid-column: 1 / -1;">
+            <label>Quota Region</label>
+            <div class="region-toggle">
+              <button type="button" class="region-btn active" data-region="RK" id="btn-rk">Rest of Karnataka (General
+                Quota)</button>
+              <button type="button" class="region-btn" data-region="HK" id="btn-hk">Kalyana-Karnataka (371j
+                Quota)</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="rank">Your KCET Rank</label>
+            <input type="number" id="rank" placeholder="e.g., 15000" required min="1" />
+          </div>
+
+          <div class="form-group">
+            <label>Quota Category</label>
+            <div class="multi-select-container" id="category-container">
+              <div class="multi-select-trigger" id="category-trigger">
+                <span class="selected-text" id="category-selected-text">Select Category</span>
+                <i data-lucide="chevron-down" style="width: 18px; height: 18px;"></i>
+              </div>
+              <div class="multi-select-dropdown" id="category-dropdown">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3>Select Category</h3>
+                    <button type="button" class="close-modal-btn" id="category-close"><i data-lucide="x"
+                        style="width:20px; height:20px;"></i></button>
+                  </div>
+                  <div class="dropdown-search-wrapper">
+                    <input type="text" placeholder="Search category..." class="dropdown-search" id="category-search"
+                      oninput="filterCategories(this.value)">
+                  </div>
+                  <div class="checkbox-list-controls">
+                    <button type="button" class="control-link" id="category-select-all">Select All</button>
+                    <button type="button" class="control-link" id="category-clear-all">Clear</button>
+                  </div>
+                  <div class="checkbox-list" id="category-checkbox-list">
+                    <!-- Categories checkboxes will populate here -->
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="apply-btn" id="category-apply">Apply Selection</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label id="course-label">Preferred Course (Optional)</label>
+            <div class="multi-select-container" id="course-container">
+              <div class="multi-select-trigger" id="course-trigger">
+                <span class="selected-text" id="course-selected-text">All Courses</span>
+                <i data-lucide="chevron-down" style="width: 18px; height: 18px;"></i>
+              </div>
+              <div class="multi-select-dropdown" id="course-dropdown">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3>Select Preferred Course</h3>
+                    <button type="button" class="close-modal-btn" id="course-close"><i data-lucide="x"
+                        style="width:20px; height:20px;"></i></button>
+                  </div>
+                  <div class="dropdown-search-wrapper">
+                    <input type="text" placeholder="Search course..." class="dropdown-search" id="course-search"
+                      oninput="filterCourses(this.value)">
+                  </div>
+                  <div class="checkbox-list-controls">
+                    <button type="button" class="control-link" id="course-select-all">Select All</button>
+                    <button type="button" class="control-link" id="course-clear-all">Clear</button>
+                  </div>
+                  <div class="checkbox-list" id="course-checkbox-list">
+                    <!-- Courses checkboxes will populate here -->
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="apply-btn" id="course-apply">Apply Selection</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="seat-type">College Seat Type</label>
+            <select id="seat-type"
+              style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; outline: none; background: white; appearance: auto;">
+              <option value="All">All Types</option>
+              <option value="Govt">Government</option>
+              <option value="Private">Private</option>
+              <option value="Aided">Aided</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="district">District / City</label>
+            <select id="district"
+              style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; outline: none; background: white; appearance: auto;">
+              <option value="All">All Karnataka</option>
+              <option value="Bangalore">Bangalore</option>
+              <option value="Mysore">Mysore</option>
+              <option value="Mangalore">Mangalore</option>
+              <option value="Hubli">Hubli / Dharwad</option>
+              <option value="Belgaum">Belgaum</option>
+              <option value="Gulbarga">Gulbarga (Kalaburagi)</option>
+              <option value="Tumkur">Tumkur</option>
+              <option value="Davangere">Davangere</option>
+              <option value="Shimoga">Shimoga</option>
+              <option value="Hassan">Hassan</option>
+              <option value="Bellary">Bellary</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="sort-by">Sort By Preference</label>
+            <select id="sort-by"
+              style="width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 14px; outline: none; background: white; appearance: auto;">
+              <option value="CutoffRank">Cutoff Rank (Low to High)</option>
+              <option value="Chance">Admission Chance (Safe to Tough)</option>
+              <option value="CollegeName">College Name (A-Z)</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn" id="predict-btn">
+            <i data-lucide="search" style="width: 18px; height: 18px; margin-right: 6px;"></i> Predict Colleges
+          </button>
+        </form>
+
+      </div>
+
+      <div class="hero-graphic">
+        <img src="/kcet/images/kcet-home.svg" alt="Student using KCET option entry predictor" />
+        <!-- Added descriptive alt text -->
+      </div>
+    </div>
+
+
+
+    <div id="kea-warning-alert" class="kea-alert" style="display: none;">
+      <div class="kea-alert-content">
+        <strong style="color:green; text-decoration:underline">Get the official PDF report to know the EXACT order you
+          should fill your options in to maximize your chances of getting into your dream college.</strong>
+      </div>
+    </div>
+
+    <div class="results-container" id="results-section" style="display: none;">
+      <div class="results-header">
+        <h2 class="results-title" id="results-title-text">
+          Prediction Results (0 matched)
+        </h2>
+
+        <div class="download-action-wrapper">
+          <button id="download-btn" class="btn btn-download"
+            title="100% Guaranteed Official PDF Report - Instant Access">
+            <i data-lucide="unlock" style="width: 18px; height: 18px; margin-right: 6px;"></i>
+            <span id="download-text">Unlock Full Report (₹99)</span>
+          </button>
+
+          <!-- Coupon Code Input -->
+          <div class="coupon-wrapper"
+            style="margin-top: 12px; display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 320px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
+            <input type="text" id="coupon-input" placeholder="Enter coupon code"
+              style="flex: 1; padding: 10px 14px; border: 1px solid #CBD5E1; border-radius: 8px; font-size: 14px; outline: none; background: #F8FAFC; transition: border-color 0.2s; box-sizing: border-box;" />
+            <button type="button" id="apply-coupon-btn" class="btn btn-secondary"
+              style="padding: 10px 16px; background-color: #475569; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; transition: background-color 0.2s; font-weight: 600;">Apply</button>
+          </div>
+          <div id="coupon-message"
+            style="margin-top: 6px; font-size: 13px; font-weight: 500; display: none; text-align: center;"></div>
+
+          <div class="scarcity-text">🔥 Only <span id="slots-left">14</span> custom reports remaining today.</div>
+          <div class="guarantee-text">
+            <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+            100% KEA Official Data Guarantee
+          </div>
+        </div>
+      </div>
+
+      <div class="results-list" id="results-list"></div>
+
+      <div class="empty-state" id="empty-state" style="display: none;">
+        <img src="/kcet/images/undraw_location-search_9mdg.svg" alt="Search Location" class="empty-graphic" />
+        <h3>No colleges found in this range</h3>
+        <p>Try modifying your category or rank preferences.</p>
+      </div>
+
+      <div class="empty-state" id="loading-state" style="display: none;">
+        <div class="spinner">Evaluating college criteria...</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Rest of your HTML remains exactly the same below here -->
+  <section class="ticker-section">
+    <h3 class="section-title">Ecosystem Partners</h3>
+    <h2 class="section-subtitle">Top Institutes in Karnataka</h2>
+    <div class="ticker-container">
+      <div class="ticker-track">
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://rvce.edu.in/wp-content/uploads/2025/08/Logo-2-1536x660.png"
+              alt="RVCE"></div>
+          <div class="text-container"><span class="college-name">RV College of Engineering</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/BMS_College_of_Engineering.svg/250px-BMS_College_of_Engineering.svg.png"
+              alt="BMSCE"></div>
+          <div class="text-container"><span class="college-name">BMS College</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://www.msruas.ac.in/admissions2026/assets/img/logo.webp" alt="MSRIT">
+          </div>
+          <div class="text-container"><span class="college-name">MS Ramaiah Institute</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://img1.wsimg.com/isteam/ip/3256ce8b-8a45-4bdb-b1d3-0d3e1c041732/logo/d870acee-0d1b-4fb2-aaad-67bd0b6938aa.png/:/rs=w:1046,h:165,cg:true,m/cr=w:1046,h:165/qt=q:95"
+              alt="St. Johns"></div>
+          <div class="text-container"><span class="college-name">St. John's College</span><span
+              class="college-stream">Nursing</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://pes.edu/wp-content/uploads/2025/06/PESU-new-logo.png" alt="PESU">
+          </div>
+          <div class="text-container"><span class="college-name">PES University</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://bmcribengaluru.karnataka.gov.in/uploads/Seal_of_Karnataka_1757337749.png" alt="BMCRI"></div>
+          <div class="text-container"><span class="college-name">Bangalore Medical College</span><span
+              class="college-stream">Medical / KCET</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://www.msruas.ac.in/assets/frontend/images/ramaiah-university-of-applied-science-logo.webp"
+              alt="Ramaiah Nursing"></div>
+          <div class="text-container"><span class="college-name">MS Ramaiah College</span><span
+              class="college-stream">Nursing</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://uvce.ac.in/img/New_UVCE_logo.png" alt="UVCE"></div>
+          <div class="text-container"><span class="college-name">Univ. Visvesvaraya</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://kims.deemsoft.com/wp-content/uploads/2018/04/logo-1.png" alt="KIMS">
+          </div>
+          <div class="text-container"><span class="college-name">Kempegowda Institute</span><span
+              class="college-stream">Nursing & Med</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://jssstuniv.in/assets/img/logo/jssstulogo.png" alt="JSS"></div>
+          <div class="text-container"><span class="college-name">JSS Science & Tech</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://rvce.edu.in/wp-content/uploads/2025/08/Logo-2-1536x660.png"
+              alt="RVCE"></div>
+          <div class="text-container"><span class="college-name">RV College of Engineering</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/BMS_College_of_Engineering.svg/250px-BMS_College_of_Engineering.svg.png"
+              alt="BMSCE"></div>
+          <div class="text-container"><span class="college-name">BMS College</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://www.msruas.ac.in/admissions2026/assets/img/logo.webp" alt="MSRIT">
+          </div>
+          <div class="text-container"><span class="college-name">MS Ramaiah Institute</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://img1.wsimg.com/isteam/ip/3256ce8b-8a45-4bdb-b1d3-0d3e1c041732/logo/d870acee-0d1b-4fb2-aaad-67bd0b6938aa.png/:/rs=w:1046,h:165,cg:true,m/cr=w:1046,h:165/qt=q:95"
+              alt="St. Johns"></div>
+          <div class="text-container"><span class="college-name">St. John's College</span><span
+              class="college-stream">Nursing</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://pes.edu/wp-content/uploads/2025/06/PESU-new-logo.png" alt="PESU">
+          </div>
+          <div class="text-container"><span class="college-name">PES University</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://bmcribengaluru.karnataka.gov.in/uploads/Seal_of_Karnataka_1757337749.png" alt="BMCRI"></div>
+          <div class="text-container"><span class="college-name">Bangalore Medical College</span><span
+              class="college-stream">Medical / KCET</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img
+              src="https://www.msruas.ac.in/assets/frontend/images/ramaiah-university-of-applied-science-logo.webp"
+              alt="Ramaiah Nursing"></div>
+          <div class="text-container"><span class="college-name">MS Ramaiah College</span><span
+              class="college-stream">Nursing</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://uvce.ac.in/img/New_UVCE_logo.png" alt="UVCE"></div>
+          <div class="text-container"><span class="college-name">Univ. Visvesvaraya</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://kims.deemsoft.com/wp-content/uploads/2018/04/logo-1.png" alt="KIMS">
+          </div>
+          <div class="text-container"><span class="college-name">Kempegowda Institute</span><span
+              class="college-stream">Nursing & Med</span></div>
+        </div>
+        <div class="ticker-item">
+          <div class="logo-box"><img src="https://jssstuniv.in/assets/img/logo/jssstulogo.png" alt="JSS"></div>
+          <div class="text-container"><span class="college-name">JSS Science & Tech</span><span
+              class="college-stream">Engineering</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium Pricing Section -->
+  <section class="pricing-section" id="pricing-plans-section" style="width:100%; max-width:1200px; padding:60px 20px; box-sizing:border-box; text-align:center; margin: 0 auto;">
+    <h3 class="section-title">Upgrade Your Preparation</h3>
+    <h2 class="section-subtitle">Flexible Plans Tailored For Your Success</h2>
+    
+    <div class="pricing-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:30px; margin-top:40px; text-align:left;">
+      
+      <!-- Basic Card -->
+      <div class="pricing-card" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:24px; padding:35px; box-shadow:0 10px 25px -5px rgba(0,0,0,0.02); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+        <div>
+          <h3 style="font-size:20px; font-weight:800; color:#1e293b;">Basic Plan</h3>
+          <p style="color:#64748b; font-size:14px; margin-top:8px;">Standard access for initial prediction analysis.</p>
+          <div style="margin:24px 0; display:flex; align-items:baseline;">
+            <span style="font-size:36px; font-weight:800; color:#0f172a;">FREE</span>
+            <span style="color:#64748b; font-size:14px; margin-left:4px;">/ forever</span>
+          </div>
+          <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px; margin-bottom:30px;">
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> Unlimited rank predictions</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> Sort by cutoff / chances</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#94a3b8; text-decoration:line-through; text-decoration-color:rgba(239, 68, 68, 0.4);"><i data-lucide="x" style="width:18px; height:18px; color:#ef4444; flex-shrink:0;"></i> PDF report downloads</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#94a3b8; text-decoration:line-through; text-decoration-color:rgba(239, 68, 68, 0.4);"><i data-lucide="x" style="width:18px; height:18px; color:#ef4444; flex-shrink:0;"></i> Counselor Counseling</li>
+          </ul>
+        </div>
+        <button disabled style="width:100%; padding:12px; border-radius:12px; border:1px solid #cbd5e1; background:#f8fafc; color:#94a3b8; font-weight:700; cursor:not-allowed;" id="plan-btn-basic">Default Plan</button>
+      </div>
+
+      <!-- Pro Card -->
+      <div class="pricing-card" style="background:#ffffff; border:2px solid #4f46e5; border-radius:24px; padding:35px; box-shadow:0 15px 35px -5px rgba(79,70,229,0.1); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+        <div style="position:absolute; top:12px; right:-35px; background:#4f46e5; color:white; font-size:11px; font-weight:800; padding:6px 40px; transform:rotate(45deg); letter-spacing:0.5px; text-transform:uppercase;">Popular</div>
+        <div>
+          <h3 style="font-size:20px; font-weight:800; color:#1e293b;">Pro Plan</h3>
+          <p style="color:#64748b; font-size:14px; margin-top:8px;">Unlock PDF downloads and updates.</p>
+          <div style="margin:24px 0; display:flex; align-items:baseline;">
+            <span style="font-size:36px; font-weight:800; color:#0f172a;">₹599</span>
+            <span style="color:#64748b; font-size:14px; margin-left:4px;">/ user</span>
+          </div>
+          <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px; margin-bottom:30px;">
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> <strong>5 Free PDF downloads</strong> (₹495 value)</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> KEA Updates & Resources</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> VIP WhatsApp group invitation</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> Contact details support</li>
+          </ul>
+        </div>
+        <button onclick="purchaseSubscription('Pro')" class="submit-btn" style="width:100%; padding:14px; margin-top:0; border-radius:12px; font-weight:700;" id="plan-btn-pro">Upgrade to Pro</button>
+      </div>
+
+      <!-- Ultra Pro Card -->
+      <div class="pricing-card" style="background:linear-gradient(135deg, #ffffff, #fafaff); border:1px solid #c084fc; border-radius:24px; padding:35px; box-shadow:0 10px 25px -5px rgba(192,132,252,0.1); display:flex; flex-direction:column; justify-content:space-between; position:relative; overflow:hidden;">
+        <div>
+          <h3 style="font-size:20px; font-weight:800; color:#1e293b; display:flex; align-items:center; gap:8px;">Ultra Pro <span style="font-size:11px; background:#f3e8ff; color:#a855f7; padding:2px 8px; border-radius:9999px;">Counseling</span></h3>
+          <p style="color:#64748b; font-size:14px; margin-top:8px;">Manual option entries and personal expert support.</p>
+          <div style="margin:24px 0; display:flex; align-items:baseline;">
+            <span style="font-size:36px; font-weight:800; color:#0f172a;">₹5,999</span>
+            <span style="color:#64748b; font-size:14px; margin-left:4px;">/ seat</span>
+          </div>
+          <ul style="list-style:none; padding:0; display:flex; flex-direction:column; gap:12px; margin-bottom:30px;">
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> <strong>Unlimited PDF downloads</strong></li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> <strong>Manual Option Entry planning</strong> (by owners)</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> Option matrix and cutoff checklist</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> Personal counseling & phone guides</li>
+            <li style="display:flex; align-items:center; gap:8px; font-size:14px; color:#475569;"><i data-lucide="check" style="width:18px; height:18px; color:#10b981; flex-shrink:0;"></i> Includes all Pro resources</li>
+          </ul>
+        </div>
+        <button onclick="purchaseSubscription('Ultra Pro')" class="submit-btn" style="width:100%; padding:14px; margin-top:0; border-radius:12px; font-weight:700; background:linear-gradient(135deg, #a855f7, #7c3aed); box-shadow: 0 8px 20px -6px rgba(168,85,247,0.3);" id="plan-btn-ultra">Upgrade to Ultra Pro</button>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="reviews-section">
+    <h3 class="section-title">Wall of Love</h3>
+    <h2 class="section-subtitle">Trusted by Karnataka's Top Students</h2>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The KCET predictor tool was incredibly accurate! It analyzed my mock scores and
+          predicted I'd secure a CS seat at RVCE. Kept me completely stress-free."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Rahul S.</span><span class="reviewer-details">Secured
+              Seat at RVCE (CS)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"I was so confused about my options with a 15k rank. This platform laid out my realistic
+          chances for the top nursing colleges perfectly."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Ananya M.</span><span
+              class="reviewer-details">Targeting St. John's (Nursing)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"By far the cleanest, most professional predictor out there. The cut-off data is highly
+          accurate compared to actual KEA mock allotments."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Karthik V.</span><span class="reviewer-details">Secured
+              Seat at BMSCE</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The option entry order generated in the PDF report was a lifesaver. It helped me land an
+          AI & Data Science seat at MSRIT that I thought was out of reach."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Preetha R.</span><span
+              class="reviewer-details">Allotted MSRIT (AI-DS)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"I have a 3b reservation quota, and Vidyari calculated the exact category trends
+          perfectly. Super accurate backend calculation."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Darshan Gowda</span><span class="reviewer-details">Rank
+              8,420 (3B Quota)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Paid predictors on other sites charge thousands. This ₹99 report is infinitely better
+          structured, clean, and highly logical."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Nitin Kumar</span><span
+              class="reviewer-details">Secured PESU (RR Campus)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The system perfectly factored in the Kalyana-Karnataka 371j quota rules. Highly
+          recommended for students from North Karnataka regions."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Basavaraj M.</span><span
+              class="reviewer-details">Allotted BIT Bangalore (ECE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The interface is so clean. No cluttered popups, just factual, direct data. It accurately
+          pinpointed my medical/veterinary chances too."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Sahana Hegde</span><span class="reviewer-details">Rank
+              4,110 (Sirsi)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"My rank was around 45k. I assumed I wouldn't get any good colleges in Bangalore, but the
+          predictor showed me legacy choices like UVCE and GITAM options."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Vikram Adiga</span><span
+              class="reviewer-details">Allotted UVCE (Mech)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"We unlocked the PDF custom report right before the KEA option entry deadline. Following
+          the list saved us from losing our security deposit."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Manjunath Swamy</span><span
+              class="reviewer-details">Parent of KCET Aspirant</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"St. John's Nursing cutoffs can be incredibly complex to track down. This tool sorted
+          through past rounds seamlessly."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Deepika P.</span><span class="reviewer-details">Secured
+              St. John's B.Sc Nursing</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The dynamic SNQ quota filter is flawless. It confirmed my eligibility for lower fees at
+          NIE Mysore precisely."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Ganesh Prasad</span><span class="reviewer-details">NIE
+              Mysore (ISE) via SNQ</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Loved how it tracks historical variations over multiple consecutive years rather than
+          just relying on the previous year's fluke round."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Meghana Bhat</span><span
+              class="reviewer-details">Secured JSSSTU Mysore</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The instant integration with Razorpay made unlocking the complete matrix instant. No
+          waiting around, direct downable asset."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Kiran Joseph</span><span class="reviewer-details">Rank
+              19,250 (Mangaluru)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"BMCRI cuts off incredibly fast. Vidyari accurately managed the margin limits, showing me
+          real secondary medical options."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Dr. Nidhi K.</span><span class="reviewer-details">Now
+              at BMCRI Bengaluru</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Excellent user experience. It's incredibly satisfying to see a localized technical tool
+          made so well for Karnataka pupils."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Abhishek Pai</span><span class="reviewer-details">Nitte
+              Meenakshi (CSE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"As a Rural + Kannada Medium student, finding authentic cutoff tables is rare. Vidyari
+          integrated those sub-reservations brilliantly."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Shivaraj Kumar</span><span
+              class="reviewer-details">Rank 31,450 (Rural Quota)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"We were heavily confused between Ramaiah Main campus vs University of Applied Sciences.
+          The explicit data rows kept us clear."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Arun Kumar V.</span><span
+              class="reviewer-details">Allotted MSRIT (Information Science)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The layout doesn't crash on mobile browsers like the official portals sometimes do
+          during peak hours. Super responsive coding."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Tejaswini N.</span><span class="reviewer-details">Rank
+              12,050 (Tumakuru)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Highly practical analysis report. Worth far more than ₹99 considering it prevents
+          mistakes that cost a full year."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Mohammed Rizwan</span><span
+              class="reviewer-details">Secured MVJ College of Engineering</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The sorting logic perfectly aligned with my choices. I ended up getting my second option
+          entry preference easily in Round 1."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Divya Shree</span><span class="reviewer-details">Rank
+              6,700 (Davanagere)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Vidyari predicted I would get Kle Technological University Hubli, and that is exactly
+          where I got matched. Highly dynamic framework!"</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Prakash Patil</span><span
+              class="reviewer-details">Allotted KLE Tech (Hubli)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The warning about the 42% who lose seats due to poor sorting completely changed how we
+          structured our KEA choice sheet."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Chandrashekar R.</span><span
+              class="reviewer-details">Parent (Bengaluru)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Extremely clean interface, beautiful design layout, and top tier security integration.
+          Trusted completely."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Harish M.</span><span class="reviewer-details">Sambhram
+              Institute (CSE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"We saved our choices based on the custom PDF order generated. Got into Siddaganga
+          Institute of Technology, Tumkur!"</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Yashwanth S.</span><span class="reviewer-details">SIT
+              Tumkur (Mechanical)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Excellent handling of Category 1 sub-allocations. Real lifesaver for students trying to
+          secure elite nodes."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Kavya Murthy</span><span class="reviewer-details">Rank
+              14,890 (Cat-1)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Helped my daughter sort her nursing options across Bangalore safely. Best interactive
+          database tool."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Savitha Rao</span><span class="reviewer-details">Parent
+              (Udupi)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The platform renders extremely fast. Perfect performance metrics and accurate prediction
+          indexing maps."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Rohan Joshi</span><span
+              class="reviewer-details">Secured Seat at SDM Dharwad</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Using historical hidden trends makes complete analytical sense compared to guessing raw
+          cut-offs from complex PDFs."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Akash Shinde</span><span class="reviewer-details">Rank
+              5,200 (Belagavi)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Flawless generation of structured option orders. This platform helped me navigate
+          choices with total clarity."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Aishwarya R.</span><span
+              class="reviewer-details">Allotted Kempegowda Medical</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The automated PDF output downloaded instantly without any glitches. Clear data
+          presentation formats."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Sumanth G.</span><span class="reviewer-details">Rank
+              22,100 (Shivamogga)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Vidyari is incredibly well optimized. No lag, real accurate calculations based on
+          official KEA data matrices."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Poojitha M.</span><span
+              class="reviewer-details">Secured Seat at Dr. AIT</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"It accounted for the General Merit Kannada Medium quota seamlessly. Got into the exact
+          engineering stream predicted."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Manju Nath</span><span class="reviewer-details">Rank
+              17,400 (KM Quota)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"My friends spent massive amounts on offline counseling agents, but Vidyari's ₹99 digital
+          report was more reliable and much faster."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Sharath Chandra</span><span
+              class="reviewer-details">Allotted RNSIT Bengaluru</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The absolute premium choice for KCET options management. Highly scalable, dynamic data
+          streams."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Deepak J.</span><span class="reviewer-details">Rank
+              9,100 (Ballari)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"I am incredibly pleased with the results. It predicted my allotment at Sir M. VIT
+          accurately during the second round."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Anusha Rao</span><span class="reviewer-details">Sir M.
+              VIT (CSE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The interface is perfectly designed for desktop as well as mobile viewports. Kept me
+          perfectly calm during choice fill days."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Sandeep V.</span><span class="reviewer-details">Rank
+              38,900 (Hassan)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Managed my options configuration accurately. Got allotted to CMRIT computer science
+          branch safely."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Kiran Naik</span><span
+              class="reviewer-details">Allotted CMRIT (CSE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Authentic, clean, and fast. The best platform tool to run simulated option variants
+          safely before the actual portal goes live."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Srinivas Murthy</span><span
+              class="reviewer-details">Parent (Chikmagalur)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The software architecture handles SC/ST specific cutoff fluctuations beautifully. Truly
+          comprehensive setup."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Priyanka M.</span><span class="reviewer-details">Rank
+              51,200 (SC Quota)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Unlocking the report gave me clear visibility on SNQ criteria across top tiers. Highly
+          functional utility."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Raghavendra Rao</span><span
+              class="reviewer-details">Secured Seat at Nitte Meenakshi</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Using Vidyari was simple. The backend data structures must be highly optimized since the
+          list loaded immediately."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Megha Gowda</span><span class="reviewer-details">Rank
+              13,200 (Mandya)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Secured an ECE seat at Reva University exactly as matched by this program module.
+          Perfect social proof confirmation."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Vijay Kumar</span><span
+              class="reviewer-details">Allotted Reva Univ (ECE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"It helped me discover premium colleges outside Bengaluru that have highly stable
+          placement records. Invaluable perspective."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Nisha Fernandes</span><span
+              class="reviewer-details">Rank 26,400 (Mangaluru)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The payment handling via Razorpay API was incredibly secure and smooth. The PDF reports
+          are excellently presented."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Karthik Somaiya</span><span
+              class="reviewer-details">Parent (Hubballi)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"It predicted my entry into Dayananda Sagar Academy of Technology flawlessly. Absolutely
+          love the layout clean look."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Shwetha S.</span><span class="reviewer-details">DSATM
+              Bengaluru (ISE)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Highly targeted, perfectly built, and very economical. Kept me from making critical
+          errors in mock option filing entries."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Darshan K.</span><span class="reviewer-details">Rank
+              43,100 (Gadag)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"The custom algorithms cleanly map out options order for top tier medical colleges as
+          well. Super dynamic system."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Dr. Aravind Swamy</span><span
+              class="reviewer-details">Secured Seat via KEA Medical</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Unlocking the full matrix saved us days of manually combing old cutoff books. Strongly
+          recommended tool."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Rajeshwari N.</span><span
+              class="reviewer-details">Parent (Chitradurga)</span></div>
+        </div>
+      </div>
+
+      <div class="review-card">
+        <div class="review-stars"><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i><i data-lucide="star"
+            class="star-icon"></i><i data-lucide="star" class="star-icon"></i></div>
+        <p class="review-text">"Vidyari is exactly what Karnataka students need during option entries. Highly
+          structured, accurate data presentation layer."</p>
+        <div class="reviewer-profile">
+          <div class="reviewer-info"><span class="reviewer-name">Chethan Gowda</span><span
+              class="reviewer-details">Allotted Acharya Institute (CSE)</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="pdf-loading-overlay" style="display: none;">
+    <div class="pdf-loading-content">
+      <div class="pdf-icon-wrapper">
+        <i data-lucide="file-text" class="pdf-icon-pulse"></i>
+        <div class="pdf-loading-bar">
+          <div class="pdf-loading-progress"></div>
+        </div>
+      </div>
+      <h3 class="pdf-loading-title">Generating Official Report...</h3>
+      <p class="pdf-loading-subtitle">Applying SNQ algorithms and compiling historic cutoffs</p>
+    </div>
+  </div>
+  <div id="social-proof-toast" class="social-proof-toast">
+    <div class="toast-avatar">
+      <i data-lucide="check-circle" class="verified-icon"></i>
+    </div>
+    <div class="toast-content">
+      <div class="toast-title"><strong id="toast-user">Ananya from Mysuru</strong></div>
+      <div class="toast-action">just unlocked the KCET PDF Report</div>
+      <div class="toast-time" id="toast-time">2 mins ago</div>
+    </div>
+  </div>
+  <input type="hidden" id="rzp-key" value="<%= razorpayKey %>" />
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    window.onerror = function (msg, url, line, col, error) {
+      alert("Mobile Error: " + msg + " at line " + line);
+      return false;
+    };
+    window.addEventListener('unhandledrejection', function (event) {
+      alert("Mobile Promise Error: " + (event.reason ? event.reason.message || event.reason : "Unknown"));
+    });
+  </script>
+  <script src="/kcet/js/KCETpdfGenerator.js?v=15"></script>
+  <script src="/kcet/js/KCETmain.js?v=15"></script>
+  <script>lucide.createIcons();</script>
+
+</body>
+
+</html>

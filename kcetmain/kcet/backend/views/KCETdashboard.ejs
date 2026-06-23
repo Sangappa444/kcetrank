@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vidyari | Dedicated Counselor Dashboard</title>
+  
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="/kcet/js/KCETpdfGenerator.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap');
+    
+    :root {
+      --md-sys-color-primary: #1a73e8;
+      --md-sys-color-primary-container: #e8f0fe;
+      --md-sys-color-on-primary-container: #174ea6;
+      --md-sys-color-surface: #ffffff;
+      --md-sys-color-surface-container: #f8fafc;
+      --md-sys-color-surface-variant: #e2e8f0;
+      --md-sys-color-on-surface: #1e293b;
+      --md-sys-color-on-surface-variant: #64748b;
+      --md-sys-color-outline: #cbd5e1;
+      --md-sys-color-error: #d93025;
+      
+      --md-shape-corner-small: 8px;
+      --md-shape-corner-medium: 16px;
+      --md-shape-corner-large: 24px;
+      
+      --md-elevation-1: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+      --md-elevation-2: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --md-elevation-3: 0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px rgba(0,0,0,0.05);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+    }
+    
+    body {
+      background-color: #f1f5f9;
+      color: var(--md-sys-color-on-surface);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Top Navbar */
+    .top-nav {
+      height: 64px;
+      background-color: var(--md-sys-color-surface);
+      border-bottom: 1px solid var(--md-sys-color-outline);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--md-sys-color-on-surface);
+      font-weight: 700;
+      font-size: 20px;
+    }
+    
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .nav-user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    
+    .logout-btn {
+      background: none;
+      border: none;
+      color: var(--md-sys-color-error);
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    
+    .logout-btn:hover {
+      background: #fee2e2;
+    }
+    
+    /* Dashboard Layout */
+    .dashboard-container {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 64px);
+      overflow: hidden;
+    }
+    
+    /* Sidebar Navigation Rail */
+    .nav-rail {
+      width: 260px;
+      background-color: var(--md-sys-color-surface);
+      border-right: 1px solid var(--md-sys-color-outline);
+      padding: 24px 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+    }
+    
+    .rail-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .rail-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--md-sys-color-on-surface-variant);
+      text-decoration: none;
+      border-radius: 9999px;
+      font-weight: 500;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .rail-item:hover {
+      background-color: #f1f5f9;
+      color: var(--md-sys-color-on-surface);
+    }
+    
+    .rail-item.active {
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      font-weight: 700;
+    }
+    
+    .rail-footer {
+      padding: 12px;
+      border-top: 1px solid var(--md-sys-color-surface-variant);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    /* Main Content Area */
+    .main-content {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+      background-color: var(--md-sys-color-surface-container);
+    }
+    
+    /* Panels */
+    .dashboard-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .dashboard-panel.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Material Design Cards */
+    .md-card {
+      background-color: var(--md-sys-color-surface);
+      border-radius: var(--md-shape-corner-medium);
+      padding: 24px;
+      box-shadow: var(--md-elevation-1);
+      margin-bottom: 24px;
+      border: 1px solid rgba(226, 232, 240, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .md-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    
+    .stat-card {
+      background-color: var(--md-sys-color-surface);
+      border-radius: var(--md-shape-corner-small);
+      padding: 20px;
+      box-shadow: var(--md-elevation-1);
+      border: 1px solid var(--md-sys-color-surface-variant);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stat-number {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--md-sys-color-on-surface);
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface-variant);
+      font-weight: 600;
+    }
+    
+    /* Profile Form Grid */
+    .profile-form {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .form-field label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    
+    .form-field input, .form-field select {
+      padding: 10px 14px;
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-shape-corner-small);
+      font-size: 14px;
+      outline: none;
+      background-color: var(--md-sys-color-surface);
+      transition: border-color 0.2s;
+    }
+    
+    .form-field input:focus, .form-field select:focus {
+      border-color: var(--md-sys-color-primary);
+    }
+    
+    /* Buttons */
+    .md-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    
+    .md-btn-primary {
+      background-color: var(--md-sys-color-primary);
+      color: white;
+    }
+    
+    .md-btn-primary:hover {
+      background-color: #1557b0;
+      box-shadow: var(--md-elevation-2);
+    }
+    
+    .md-btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--md-sys-color-outline);
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    
+    .md-btn-outline:hover {
+      background-color: #f1f5f9;
+      color: var(--md-sys-color-on-surface);
+    }
+    
+    /* Drag & Drop Option Planner */
+    .option-planner-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    
+    @media (max-width: 900px) {
+      .option-planner-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 200px;
+      padding: 10px;
+      background-color: #f8fafc;
+      border: 2px dashed var(--md-sys-color-outline);
+      border-radius: var(--md-shape-corner-medium);
+    }
+    
+    .option-item {
+      background-color: var(--md-sys-color-surface);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-shape-corner-small);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--md-elevation-1);
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .option-item:active {
+      cursor: grabbing;
+      transform: scale(1.02);
+      box-shadow: var(--md-elevation-2);
+    }
+    
+    .option-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    
+    .option-college {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--md-sys-color-on-surface);
+    }
+    
+    .option-course {
+      font-size: 12px;
+      color: var(--md-sys-color-on-surface-variant);
+    }
+    
+    .option-code {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-primary-container);
+      background: var(--md-sys-color-primary-container);
+      padding: 2px 6px;
+      border-radius: 4px;
+      align-self: flex-start;
+    }
+    
+    .option-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .option-btn {
+      background: none;
+      border: none;
+      color: var(--md-sys-color-on-surface-variant);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+    
+    .option-btn:hover {
+      background-color: #f1f5f9;
+      color: var(--md-sys-color-on-surface);
+    }
+    
+    /* Validation Alert */
+    .validation-alert {
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--md-shape-corner-small);
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      color: #78350f;
+    }
+    
+    /* Roadmap Step Tracker */
+    .roadmap-list {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding-left: 32px;
+      margin-top: 16px;
+    }
+    
+    .roadmap-list::before {
+      content: "";
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background-color: var(--md-sys-color-outline);
+    }
+    
+    .roadmap-step {
+      position: relative;
+      padding-bottom: 32px;
+    }
+    
+    .roadmap-step:last-child {
+      padding-bottom: 0;
+    }
+    
+    .roadmap-step-circle {
+      position: absolute;
+      left: -32px;
+      top: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: #f1f5f9;
+      border: 2px solid var(--md-sys-color-outline);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 11px;
+      font-weight: 700;
+    }
+    
+    .roadmap-step.completed .roadmap-step-circle {
+      background-color: var(--md-sys-color-primary);
+      border-color: var(--md-sys-color-primary);
+      color: white;
+    }
+    
+    .roadmap-step.active .roadmap-step-circle {
+      border-color: var(--md-sys-color-primary);
+      background-color: white;
+      color: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.2);
+    }
+    
+    .roadmap-step-content {
+      padding-left: 12px;
+    }
+    
+    .roadmap-step-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--md-sys-color-on-surface);
+      margin-bottom: 4px;
+    }
+    
+    .roadmap-step-desc {
+      font-size: 13px;
+      color: var(--md-sys-color-on-surface-variant);
+      line-height: 1.4;
+    }
+    
+    /* Search autocomplete */
+    .search-results-box {
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-shape-corner-small);
+      max-height: 250px;
+      overflow-y: auto;
+      background: white;
+      margin-top: 6px;
+      box-shadow: var(--md-elevation-2);
+      display: none;
+    }
+    
+    .search-result-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--md-sys-color-surface-variant);
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+    
+    .search-result-item:hover {
+      background-color: var(--md-sys-color-primary-container);
+    }
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Mobile Responsiveness */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--md-sys-color-on-surface);
+      cursor: pointer;
+      padding: 4px;
+    }
+    .sidebar-overlay {
+      display: none;
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: block;
+      }
+      .nav-rail {
+        position: fixed;
+        left: -280px;
+        top: 64px;
+        height: calc(100vh - 64px);
+        z-index: 50;
+        transition: left 0.3s ease;
+        box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+      }
+      .nav-rail.open {
+        left: 0;
+      }
+      .sidebar-overlay.open {
+        display: block;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 40;
+      }
+      
+      .dashboard-content {
+        padding: 16px; 
+      }
+      
+      .top-nav {
+        padding: 0 16px;
+      }
+      .nav-user-badge span {
+        display: none; 
+      }
+      .logout-btn span {
+        display: none; 
+      }
+      .nav-brand span {
+        font-size: 16px;
+      }
+      
+      .layout-grid {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .roadmap-timeline {
+        flex-direction: column !important;
+      }
+      .roadmap-step {
+        width: 100% !important;
+        flex: none !important;
+        margin-bottom: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-nav">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
+      </button>
+      <a href="/kcet" class="nav-brand">
+        <i data-lucide="graduation-cap" style="color: var(--md-sys-color-primary); width: 28px; height: 28px;"></i>
+        <span>Vidyari Dashboard</span>
+      </a>
+    </div>
+    
+    <div class="nav-actions">
+      <div class="nav-user-badge" id="nav-user-badge">
+        <i data-lucide="user" style="width: 16px; height: 16px;"></i>
+        <span id="nav-username">Student</span>
+      </div>
+      <button onclick="handleLogout()" class="logout-btn">
+        <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <!-- Sidebar Navigation Rail -->
+    <nav class="nav-rail">
+      <div class="rail-menu">
+        <a class="rail-item active" onclick="switchPanel('overview')">
+          <i data-lucide="layout-dashboard" style="width: 20px; height: 20px;"></i>
+          <span>Overview</span>
+        </a>
+        <a class="rail-item" onclick="switchPanel('option-planner')">
+          <i data-lucide="list-ordered" style="width: 20px; height: 20px;"></i>
+          <span>Option Entry Planner</span>
+        </a>
+        <a class="rail-item" onclick="switchPanel('roadmap')">
+          <i data-lucide="git-branch" style="width: 20px; height: 20px;"></i>
+          <span>Counseling Roadmap</span>
+        </a>
+        <a class="rail-item" onclick="switchPanel('profile')">
+          <i data-lucide="user-cog" style="width: 20px; height: 20px;"></i>
+          <span>Profile Settings</span>
+        </a>
+        <a class="rail-item" onclick="switchPanel('downloads')">
+          <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+          <span>Report Downloads</span>
+        </a>
+        <a class="rail-item" onclick="switchPanel('counselor-corner')" id="menu-counselor-corner" style="display: none;">
+          <i data-lucide="heart-handshake" style="width: 20px; height: 20px;"></i>
+          <span>Counselor Corner</span>
+        </a>
+      </div>
+      
+      <div class="rail-footer">
+        <a href="/kcet" class="md-btn md-btn-outline" style="justify-content: center;">
+          <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i>
+          <span>Predictor Home</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Main Dashboard Panel Views -->
+    <main class="main-content">
+      
+      <!-- 1. OVERVIEW PANEL -->
+      <section class="dashboard-panel active" id="panel-overview">
+        <div class="md-card">
+          <h2 class="md-card-title">
+            <i data-lucide="sparkles" style="color: #fbbc05;"></i> Welcome to your Counseling Workspace
+          </h2>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 14px; line-height: 1.5;">
+            Track your official KEA rankings, outline your prioritized colleges choice list, and retrieve counseling roadmap tasks.
+          </p>
+        </div>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i data-lucide="award"></i></div>
+            <div>
+              <div class="stat-number" id="stat-rank">-</div>
+              <div class="stat-label">Your KCET Rank</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i data-lucide="layers"></i></div>
+            <div>
+              <div class="stat-number" id="stat-category">-</div>
+              <div class="stat-label">Category Quota</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i data-lucide="gem" style="color: #7c3aed;"></i></div>
+            <div>
+              <div class="stat-number" id="stat-plan">-</div>
+              <div class="stat-label">Active Plan</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i data-lucide="download-cloud"></i></div>
+            <div>
+              <div class="stat-number" id="stat-downloads">-</div>
+              <div class="stat-label">Downloads Left</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="option-planner-container">
+          <div class="md-card" style="grid-column: span 1;">
+            <h3 class="md-card-title"><i data-lucide="flag"></i> Current Counseling Milestone</h3>
+            <div style="background-color: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); padding: 16px; border-radius: 12px; margin-bottom: 12px;">
+              <h4 style="font-weight: 700; font-size: 15px; margin-bottom: 4px;" id="current-milestone-title">Document Verification</h4>
+              <p style="font-size: 13px; opacity: 0.9;" id="current-milestone-desc">Check your registration details and verify your status codes.</p>
+            </div>
+            <button onclick="switchPanel('roadmap')" class="md-btn md-btn-primary" style="font-size: 13px;">View Complete Roadmap</button>
+          </div>
+
+          <div class="md-card" style="grid-column: span 1;">
+            <h3 class="md-card-title"><i data-lucide="list"></i> Option Entry Summary</h3>
+            <div style="font-size: 14px; margin-bottom: 20px;">
+              <p>You have <strong id="summary-options-count">0</strong> choices saved in your priority list.</p>
+            </div>
+            <button onclick="switchPanel('option-planner')" class="md-btn md-btn-outline" style="font-size: 13px;">Manage Priority List</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. OPTION ENTRY PLANNER -->
+      <section class="dashboard-panel" id="panel-option-planner">
+        <div class="md-card">
+          <h2 class="md-card-title"><i data-lucide="list-ordered"></i> Interactive Option Entry Planner</h2>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 14px; margin-bottom: 16px; line-height: 1.5;">
+            Build your prioritized college-course list. Drag items to re-order. An automated validation checks your order against historical cutoffs to prevent sequence hazards.
+          </p>
+          
+          <div class="validation-alert" id="option-validation-box" style="display: none;">
+            <i data-lucide="alert-triangle" style="flex-shrink: 0; color: #d97706;"></i>
+            <div>
+              <strong style="font-size: 14px;">Option Sequence Warnings:</strong>
+              <div id="option-validation-list" style="font-size: 12px; margin-top: 6px; display: flex; flex-direction: column; gap: 4px;">
+              </div>
+            </div>
+          </div>
+          
+          <div class="option-planner-container">
+            <!-- Search & Add Options -->
+            <div class="md-card" style="margin-bottom: 0;">
+              <h3 class="md-card-title"><i data-lucide="plus-circle"></i> Add College Options</h3>
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div class="form-field">
+                  <label for="search-college">Search College</label>
+                  <input type="text" id="search-college" placeholder="Type college name or code..." autocomplete="off">
+                  <div class="search-results-box" id="search-college-results"></div>
+                </div>
+                
+                <div class="form-field">
+                  <label for="select-course">Select Course</label>
+                  <select id="select-course">
+                    <option value="">-- Choose a course --</option>
+                  </select>
+                </div>
+                
+                <button onclick="addSelectedOption()" class="md-btn md-btn-primary" style="justify-content: center;">Add to Priority List</button>
+              </div>
+            </div>
+            
+            <!-- Prioritized List -->
+            <div class="md-card" style="margin-bottom: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 class="md-card-title" style="margin-bottom: 0;"><i data-lucide="grip-vertical"></i> Priority Order</h3>
+                <button onclick="saveOptionPriorityList()" class="md-btn md-btn-primary" style="font-size: 12px; padding: 6px 14px;">
+                  <i data-lucide="save" style="width: 14px; height: 14px;"></i> Save Options
+                </button>
+              </div>
+              <div class="option-list" id="planner-option-list">
+                <!-- User saved options inject here -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. ROADMAP TRACKER -->
+      <section class="dashboard-panel" id="panel-roadmap">
+        <div class="md-card">
+          <h2 class="md-card-title"><i data-lucide="git-branch"></i> KEA Counseling Roadmap Tracker</h2>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+            Follow each stage of the official KEA counseling timeline. Click a milestone circle to update your current stage.
+          </p>
+          
+          <div class="roadmap-list" id="roadmap-step-list">
+            <div class="roadmap-step completed" onclick="setRoadmapMilestone(0)">
+              <div class="roadmap-step-circle">1</div>
+              <div class="roadmap-step-content">
+                <h4 class="roadmap-step-title">KEA Rank Declaration</h4>
+                <p class="roadmap-step-desc">KEA results are published. Verify your rank and category details on your profile.</p>
+              </div>
+            </div>
+            <div class="roadmap-step active" onclick="setRoadmapMilestone(1)">
+              <div class="roadmap-step-circle">2</div>
+              <div class="roadmap-step-content">
+                <h4 class="roadmap-step-title">Document Verification</h4>
+                <p class="roadmap-step-desc">Upload required certificates and verify status codes at help centers.</p>
+              </div>
+            </div>
+            <div class="roadmap-step" onclick="setRoadmapMilestone(2)">
+              <div class="roadmap-step-circle">3</div>
+              <div class="roadmap-step-content">
+                <h4 class="roadmap-step-title">Option Entry Window</h4>
+                <p class="roadmap-step-desc">Submit your college list choices in order of preference in the KEA portal.</p>
+              </div>
+            </div>
+            <div class="roadmap-step" onclick="setRoadmapMilestone(3)">
+              <div class="roadmap-step-circle">4</div>
+              <div class="roadmap-step-content">
+                <h4 class="roadmap-step-title">Mock Allotment & List Edit</h4>
+                <p class="roadmap-step-desc">Analyze mockup seat allocations and adjust your options order.</p>
+              </div>
+            </div>
+            <div class="roadmap-step" onclick="setRoadmapMilestone(4)">
+              <div class="roadmap-step-circle">5</div>
+              <div class="roadmap-step-content">
+                <h4 class="roadmap-step-title">Round 1 Allotment</h4>
+                <p class="roadmap-step-desc">First seat allocation occurs. Select your choice actions (Choice 1, 2, 3, or 4).</p>
+              </div>
+            </div>
+            <div class="roadmap-step" onclick="setRoadmapMilestone(5)">
+              <div class="roadmap-step-circle">6</div>
+              <div class="roadmap-step-content">
+                <h4 class="roadmap-step-title">Round 2 & Admission reporting</h4>
+                <p class="roadmap-step-desc">Final options are processed. Secure admission letters and report to college.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. PROFILE SETTINGS -->
+      <section class="dashboard-panel" id="panel-profile">
+        <div class="md-card">
+          <h2 class="md-card-title"><i data-lucide="user-cog"></i> Profile Settings</h2>
+          
+          <form onsubmit="handleProfileUpdate(event)" style="display: flex; flex-direction: column; gap: 24px;">
+            <div class="profile-form">
+              <div class="form-field">
+                <label for="profile-name">Full Name</label>
+                <input type="text" id="profile-name" required>
+              </div>
+              
+              <div class="form-field">
+                <label for="profile-email">Email Address</label>
+                <input type="email" id="profile-email" disabled style="background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed;">
+              </div>
+              
+              <div class="form-field">
+                <label for="profile-phone">WhatsApp Phone Number</label>
+                <input type="text" id="profile-phone" required pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number">
+              </div>
+              
+              <div class="form-field">
+                <label for="profile-rank">Your KCET Rank</label>
+                <input type="number" id="profile-rank" required min="1">
+              </div>
+              
+              <div class="form-field">
+                <label for="profile-category">Your Category</label>
+                <select id="profile-category" required>
+                  <option value="GM">General Merit (GM)</option>
+                  <option value="1G">1 General (1G)</option>
+                  <option value="2AG">2A General (2AG)</option>
+                  <option value="2BG">2B General (2BG)</option>
+                  <option value="3AG">3A General (3AG)</option>
+                  <option value="3BG">3B General (3BG)</option>
+                  <option value="SCG">SC General (SCG)</option>
+                  <option value="STG">ST General (STG)</option>
+                  <option value="GMR">GM Rural (GMR)</option>
+                  <option value="GMK">GM Kannada (GMK)</option>
+                </select>
+              </div>
+            </div>
+            
+            <button type="submit" class="md-btn md-btn-primary" style="align-self: flex-start;">
+              <i data-lucide="save" style="width: 18px; height: 18px;"></i> Save Changes
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- 5. DOWNLOADS -->
+      <section class="dashboard-panel" id="panel-downloads">
+        <div class="md-card">
+          <h2 class="md-card-title"><i data-lucide="download"></i> Saved Report Downloads</h2>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 14px; margin-bottom: 20px;">
+            Premium users can access and download generated cutoff PDF reports here.
+          </p>
+          
+          <div id="downloads-list" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Reports inject here -->
+            <p style="color: var(--md-sys-color-on-surface-variant); font-size: 13px; font-style: italic;">
+              No PDF reports downloaded yet. Perform a cutoff search and unlock to access it here.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. COUNSELOR CORNER (ULTRA PRO ONLY) -->
+      <section class="dashboard-panel" id="panel-counselor-corner">
+        <div class="md-card">
+          <h2 class="md-card-title"><i data-lucide="heart-handshake" style="color: #7c3aed;"></i> Counselor Corner (Ultra Pro VIP)</h2>
+          <p style="color: var(--md-sys-color-on-surface-variant); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+            As an Ultra Pro subscriber, you have VIP WhatsApp group access and custom list entry planner services.
+          </p>
+          
+          <div class="option-planner-container">
+            <div class="md-card" style="margin-bottom: 0;">
+              <h3 class="md-card-title"><i data-lucide="message-square" style="color: #25d366;"></i> Join VIP WhatsApp Group</h3>
+              <p style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px; line-height: 1.4;">
+                Join our private WhatsApp group for real-time updates and direct coordinator support.
+              </p>
+              <a href="#" id="dash-whatsapp-link" target="_blank" class="md-btn md-btn-primary" style="background-color: #25d366; border-color: #25d366;">Join WhatsApp Group</a>
+            </div>
+            
+            <div class="md-card" style="margin-bottom: 0;">
+              <h3 class="md-card-title"><i data-lucide="file-text"></i> Request option matrix list</h3>
+              <p style="font-size: 13px; color: var(--md-sys-color-on-surface-variant); margin-bottom: 16px; line-height: 1.4;">
+                Submit details to have our coordinators draft your perfect college priority list manually.
+              </p>
+              
+              <form id="option-entry-request-form" onsubmit="handleOptionEntryRequest(event)" style="display: flex; flex-direction: column; gap: 12px;">
+                <div class="form-field">
+                  <label for="req-stream">Preferred Stream</label>
+                  <select id="req-stream" required>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Agriculture">Agriculture</option>
+                    <option value="Veterinary">Veterinary</option>
+                    <option value="B.Pharm">B.Pharm</option>
+                    <option value="D.Pharm">D.Pharm</option>
+                    <option value="B.Sc Nursing">B.Sc Nursing</option>
+                    <option value="BNYS">BNYS</option>
+                    <option value="Allied Health Sciences">Allied Health Sciences</option>
+                    <option value="BPT">BPT</option>
+                    <option value="BPO">BPO</option>
+                    <option value="Architecture">Architecture</option>
+                  </select>
+                </div>
+                <div class="form-field">
+                  <label for="req-comments">Special Preferences (e.g. Specific Location, Colleges)</label>
+                  <input type="text" id="req-comments" placeholder="e.g. Only Bangalore colleges, CSE branch" required>
+                </div>
+                <button type="submit" class="md-btn md-btn-primary" style="justify-content: center;">Submit Request</button>
+              </form>
+              
+              <div id="counselor-requests-container" style="margin-top: 24px; border-top: 1px solid var(--md-sys-color-outline); padding-top: 16px; display: none;">
+                <h4 style="font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--md-sys-color-on-surface);">Your Past Requests</h4>
+                <div id="counselor-requests-list" style="display: flex; flex-direction: column; gap: 8px;">
+                  <!-- dynamically populated -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <input type="hidden" id="rzp-key" value="">
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="/kcet/js/KCETdashboard.js"></script>
+  <script>
+    function toggleSidebar() {
+      const rail = document.querySelector('.nav-rail');
+      const overlay = document.getElementById('sidebar-overlay');
+      if (rail && overlay) {
+        rail.classList.toggle('open');
+        overlay.classList.toggle('open');
+      }
+    }
+
+    // Close sidebar on menu item click (mobile)
+    document.querySelectorAll('.rail-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          toggleSidebar();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -2,13 +2,12 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/server.js",
+      "src": "kcetmain/kcet/backend/server.js",
       "use": "@vercel/node",
       "config": {
         "includeFiles": [
-          "data/cutoffs.db",
-          "backend/views/**",
-          "backend/public/**"
+          "kcetmain/kcet/backend/views/**",
+          "kcetmain/kcet/backend/public/**"
         ]
       }
     }
@@ -16,7 +15,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "backend/server.js"
+      "dest": "kcetmain/kcet/backend/server.js"
     }
   ]
 }

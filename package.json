@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend run dev\"",
+    "dev": "concurrently \"npm --prefix kcetmain/kcet/backend start\" \"npm --prefix frontend run dev\"",
     "start": "npm run dev"
   },
   "devDependencies": {
