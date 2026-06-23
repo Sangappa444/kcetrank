@@ -161,6 +161,7 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, activeCa
       }
     });
 
+    // Add branding to ALL pages, including the newly added ones
     addPdfBranding();
 
     const filename = `KCET_${activeCategory}_Cutoffs_${selectedCategories.join('_')}_Rank${rank}.pdf`;
@@ -175,6 +176,29 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, activeCa
     document.body.removeChild(link);
     setTimeout(() => URL.revokeObjectURL(url), 2000);
     Toastify({ text: "PDF downloaded successfully!", backgroundColor: "#0F9D58" }).showToast();
+
+    // Automatically Email the PDF if user is logged in
+    try {
+        const userStr = localStorage.getItem('kcet_user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user && user.email) {
+                const pdfBase64 = doc.output('datauristring');
+                fetch('/kcet/api/send-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: user.email, pdfBase64: pdfBase64 })
+                }).then(res => res.json())
+                  .then(data => {
+                      if(data.success) {
+                          Toastify({ text: "Backup PDF sent to your email!", backgroundColor: "#10B981" }).showToast();
+                      }
+                  });
+            }
+        }
+    } catch(e) {
+        console.error("Failed to trigger email PDF:", e);
+    }
   } catch (err) {
     console.error('PDF Generation Error:', err);
     Toastify({ text: "Failed to generate PDF.", backgroundColor: "#DB4437" }).showToast();

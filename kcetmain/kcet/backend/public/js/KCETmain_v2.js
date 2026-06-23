@@ -1168,13 +1168,30 @@ function renderResultsGrid() {
     </div>
   `;
 
-  // Display only the first 3 results to hook them
-  const displayResults = appState.results.slice(0, 3);
+  // Display all if paid, else only first 3
+  const displayResults = appState.hasPaid ? appState.results : appState.results.slice(0, 3);
 
   displayResults.forEach(result => {
+    // Generate a unique ID for the checkbox
+    const colId = result.college_code + '_' + result.course_name.replace(/[^a-zA-Z0-9]/g, '');
+    
+    // Premium Lock Check
+    const compareUI = appState.hasPaid ? 
+      `<input type="checkbox" class="compare-checkbox" data-college='${JSON.stringify(result).replace(/'/g, "&apos;")}' id="cmp_${colId}" style="cursor: pointer; transform: scale(1.2);">` 
+      : 
+      `<button onclick="Toastify({text: '🔒 Unlock Full Report to use Compare Analytics!', style: {background: '#F59E0B'}}).showToast()" style="background: none; border: none; cursor: pointer; padding: 0;">
+         <i data-lucide="lock" style="width: 16px; height: 16px; color: #cbd5e1;"></i>
+       </button>`;
+
     html += `
-      <a href="#" class="list-row" onclick="event.preventDefault()">
-        <div class="cell-name"><span style="color: #0F9D58; font-weight: 600; font-size: 0.9em;">[${result.college_code}]</span> ${result.college_name}</div>
+      <div class="list-row" style="position: relative;">
+        <div style="position: absolute; left: -15px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px;">
+          ${compareUI}
+          <button class="wishlist-btn" data-college='${JSON.stringify(result).replace(/'/g, "&apos;")}' style="background: none; border: none; cursor: pointer; padding: 0;">
+            <i data-lucide="heart" style="width: 18px; height: 18px; color: #cbd5e1; transition: color 0.2s;"></i>
+          </button>
+        </div>
+        <div class="cell-name" style="padding-left: 10px;"><span style="color: #0F9D58; font-weight: 600; font-size: 0.9em;">[${result.college_code}]</span> ${result.college_name}</div>
         <div class="cell-course">
           <i data-lucide="book-open" style="width: 14px; height: 14px; margin-right: 4px;"></i>
           ${result.course_name}
@@ -1184,12 +1201,12 @@ function renderResultsGrid() {
         <div>
           <span class="badge ${result.chances}">${result.chances}</span>
         </div>
-      </a>
+      </div>
     `;
   });
 
   // THE FOMO/FEAR HOOK: Tell them exactly what they are missing out on.
-  if (appState.results.length > 3) {
+  if (!appState.hasPaid && appState.results.length > 3) {
     const hiddenCount = appState.results.length - 3;
     html += `
       <div class="fear-lock-box">
@@ -1230,6 +1247,9 @@ function renderResultsGrid() {
   if (window.lucide) {
     lucide.createIcons();
   }
+
+  // Attach Event Listeners for Compare and Wishlist
+  attachCompareAndWishlistListeners();
 }
 
 // Razorpay Integration
@@ -1312,7 +1332,7 @@ async function handleDownloadPayment() {
     const order = await orderRes.json();
 
     // Check if order is free (coupon admin100 applied)
-    if (order.isFree) {
+    if (order.amount === 0 || order.id === 'free_order_admin100') {
       try {
         // GUARANTEE 100% DELIVERY: Instantly unlock PDF without waiting for server verification
         appState.hasPaid = true;
@@ -1517,4 +1537,3 @@ function initSocialProof() {
 // Start
 init();
 initSocialProof();
-

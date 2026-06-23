@@ -22,6 +22,7 @@ const Transaction = require('./models/KCETTransaction');
 const User = require('./models/KCETUser');
 const KCETCounselorRequest = require('./models/KCETCounselorRequest');
 const auth = require('./middleware/KCETauth');
+const { sendPDFEmail } = require('./utils/emailService');
 
 // ===== RAZORPAY CONFIGURATION =====
 // Serve static assets directly from this router to ensure paths resolve correctly regardless of server.js config
@@ -730,6 +731,33 @@ router.post('/api/payment/subscription-download', auth, async (req, res) => {
     } catch (err) {
         console.error('[KCET Sub] Credit consumption error:', err.message);
         res.status(500).json({ error: 'Failed to process subscription download' });
+    }
+});
+
+/**
+ * POST /kcet/api/send-pdf
+ * Sends the generated PDF report to the user's email
+ */
+router.post('/api/send-pdf', async (req, res) => {
+    try {
+        const { email, pdfBase64 } = req.body;
+        if (!email || !pdfBase64) {
+            return res.status(400).json({ error: 'Email and PDF data are required' });
+        }
+        
+        // Convert base64 to buffer
+        const base64Data = pdfBase64.replace(/^data:application\/pdf;base64,/, "");
+        const pdfBuffer = Buffer.from(base64Data, 'base64');
+        
+        const result = await sendPDFEmail(email, pdfBuffer);
+        if (result.success) {
+            res.json({ success: true, message: 'PDF sent successfully' });
+        } else {
+            res.status(500).json({ error: 'Failed to send email' });
+        }
+    } catch (err) {
+        console.error('[KCET Email] Error processing PDF email:', err.message);
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
