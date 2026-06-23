@@ -1439,7 +1439,7 @@ function triggerPDFDownload() {
     selectedCategories: selectedCategories,
     selectedCourses: selectedCourses,
     activeCategory: appState.activeCategory,
-    results: appState.results,
+    results: appState.rawResults || appState.results,
     API_BASE_URL,
     setLoadingState: setPdfLoadingState
   });
