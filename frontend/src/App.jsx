@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Search, Compass, BookOpen, Download, Lock } from 'lucide-react';
+import { Search, Compass, BookOpen, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './index.css';
@@ -45,41 +45,6 @@ function App() {
       console.error("Prediction error:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePayment = async () => {
-    try {
-      const { data: order } = await axios.post(`${API_BASE_URL}/create-order`);
-      
-      const options = {
-        key: 'rzp_live_SrtVIpDfWSFozV', // Using the provided Razorpay Live Key ID
-        amount: order.amount,
-        currency: order.currency,
-        name: 'KCET Predictor',
-        description: 'Premium PDF Cutoff Report',
-        order_id: order.id,
-        handler: function (response) {
-          // Success! Now generate the PDF.
-          generatePDF();
-        },
-        prefill: {
-          name: 'Student',
-          email: 'student@example.com',
-          contact: '9999999999'
-        },
-        theme: {
-          color: '#6366f1'
-        }
-      };
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response){
-        alert("Payment failed or cancelled. PDF generation aborted.");
-      });
-      rzp.open();
-    } catch (err) {
-      console.error('Payment Flow Error:', err);
-      alert('Failed to connect to payment gateway.');
     }
   };
 
@@ -230,8 +195,8 @@ function App() {
               Prediction Results ({results.length} matched)
             </h2>
             {results.length > 0 && (
-              <button onClick={handlePayment} className="btn" style={{ background: '#10b981', height: 'auto', padding: '0.5rem 1rem' }}>
-                <Lock size={18} /> Unlock Full PDF Report (₹10)
+              <button onClick={generatePDF} className="btn" style={{ background: '#10b981', height: 'auto', padding: '0.5rem 1rem' }}>
+                <Download size={18} /> Download Full PDF Report
               </button>
             )}
           </div>

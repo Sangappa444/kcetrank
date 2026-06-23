@@ -3,19 +3,12 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
-const Razorpay = require('razorpay');
-
 const app = express();
 const PORT = process.env.PORT || 3001;
 const DB_PATH = path.join(__dirname, '..', 'data', 'cutoffs.db');
 
 app.use(cors());
 app.use(express.json());
-
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || 'dummy_id',
-  key_secret: process.env.RAZORPAY_KEY_SECRET || 'dummy_secret',
-});
 
 const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY, (err) => {
     if (err) {
@@ -106,22 +99,6 @@ app.get('/api/predict', (req, res) => {
         predictions.sort((a, b) => a.cutoff_rank_num - b.cutoff_rank_num);
         res.json(predictions);
     });
-});
-
-// POST /api/create-order
-app.post('/api/create-order', async (req, res) => {
-    try {
-        const options = {
-            amount: 10 * 100, // ₹10
-            currency: "INR",
-            receipt: `receipt_${Date.now()}`
-        };
-        const order = await razorpay.orders.create(options);
-        res.json(order);
-    } catch (error) {
-        console.error("Razorpay Order Error:", error);
-        res.status(500).json({ error: error.message });
-    }
 });
 
 app.listen(PORT, () => {
