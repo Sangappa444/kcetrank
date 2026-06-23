@@ -3,8 +3,7 @@ import axios from 'axios';
 import { 
   Search, Compass, BookOpen, Download, 
   Cpu, Leaf, Stethoscope, Pill, HeartPulse, 
-  Activity, GraduationCap, Award, Lock, CheckCircle2,
-  CreditCard, ArrowRight, FileText
+  Activity, GraduationCap, Award
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -26,8 +25,6 @@ function App() {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [quotaRegion, setQuotaRegion] = useState('RK');
-  const [paymentLoading, setPaymentLoading] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   const rkCategories = [
     '1G', '1K', '1R', '2AG', '2AK', '2AR', '2BG', '2BK', '2BR', 
@@ -84,7 +81,6 @@ function App() {
     
     setLoading(true);
     setSearched(true);
-    setPaymentSuccess(false);
     
     try {
       const response = await axios.get(`${API_BASE_URL}/predict`, {

@@ -115,7 +115,7 @@
         </div>
 
         <div id="results-section" style="display: none;">
-            <!-- Predictions/Payment card will render here dynamically -->
+            <!-- Predictions will render here dynamically -->
         </div>
     </div>
 
@@ -186,8 +186,6 @@
         let courses = [];
         let results = [];
         let quotaRegion = 'RK';
-        let paymentSuccess = false;
-        let paymentLoading = false;
         let pdfLoading = false;
         let searched = false;
         let selectedCategories = [];
@@ -237,7 +235,6 @@
             activeCategory = cat;
             document.getElementById('results-section').style.display = 'none';
             searched = false;
-            paymentSuccess = false;
             
             // Clear search fields and show all options
             document.getElementById('course-search').value = '';
@@ -323,7 +320,6 @@
             quotaRegion = region;
             document.getElementById('results-section').style.display = 'none';
             searched = false;
-            paymentSuccess = false;
 
             // Clear search fields and show all options
             document.getElementById('course-search').value = '';
@@ -634,7 +630,6 @@
                 const res = await axios.get(`/api/predict`, { params });
                 results = res.data;
                 searched = true;
-                paymentSuccess = false;
                 renderResults();
             } catch (err) {
                 console.error(err);
