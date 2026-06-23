@@ -57,11 +57,11 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, activeCa
 
     const grouped = {};
     rows.forEach(r => {
-      // Use category in the key to prevent overwrite when multiple categories are selected
-      const key = `${r.college_name} \n(${r.course_name}) [Category: ${r.category}]`;
+      const codeStr = r.college_code ? `[${r.college_code}] ` : '';
+      const key = `${codeStr}${r.college_name} \n(${r.course_name}) [Category: ${r.category}]`;
       if (!grouped[key]) {
         grouped[key] = {
-          name: `${r.college_name} \n(${r.course_name})`,
+          name: `${codeStr}${r.college_name} \n(${r.course_name})`,
           category: r.category,
           '2023_1': '-', '2023_2': '-', '2023_3': '-',
           '2024_1': '-', '2024_2': '-', '2024_3': '-',

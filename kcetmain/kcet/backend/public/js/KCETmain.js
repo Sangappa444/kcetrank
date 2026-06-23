@@ -1152,7 +1152,6 @@ function renderRecentSearches() {
 function renderResultsGrid() {
   let html = `
     <div class="list-header-row">
-      <div>Code</div>
       <div>College Name</div>
       <div>Course</div>
       <div>Cutoff</div>
@@ -1167,8 +1166,7 @@ function renderResultsGrid() {
   displayResults.forEach(result => {
     html += `
       <a href="#" class="list-row" onclick="event.preventDefault()">
-        <div class="cell-code">${result.college_code}</div>
-        <div class="cell-name">${result.college_name}</div>
+        <div class="cell-name"><span style="color: #0F9D58; font-weight: 600; font-size: 0.9em;">[${result.college_code}]</span> ${result.college_name}</div>
         <div class="cell-course">
           <i data-lucide="book-open" style="width: 14px; height: 14px; margin-right: 4px;"></i>
           ${result.course_name}

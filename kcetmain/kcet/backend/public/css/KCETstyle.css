@@ -354,7 +354,7 @@ input:focus, select:focus {
 
 .list-header-row {
   display: grid;
-  grid-template-columns: 80px 3fr 2fr 1fr 1fr 100px;
+  grid-template-columns: 3fr 2fr 1fr 1fr 100px;
   gap: 1rem;
   padding: 1rem 1.5rem;
   background: var(--surface-variant);
@@ -368,7 +368,7 @@ input:focus, select:focus {
 
 .list-row {
   display: grid;
-  grid-template-columns: 80px 3fr 2fr 1fr 1fr 100px;
+  grid-template-columns: 3fr 2fr 1fr 1fr 100px;
   gap: 1rem;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--surface-border);
@@ -385,17 +385,7 @@ input:focus, select:focus {
   background-color: var(--bg-color);
 }
 
-/* List Cell Styles */
-.cell-code {
-  font-family: monospace;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: rgba(0,0,0,0.03);
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
-  text-align: center;
-}
+
 
 .cell-name {
   font-weight: 500;
@@ -538,14 +528,9 @@ input:focus, select:focus {
     position: relative;
   }
   
-  .cell-code {
-    position: absolute;
-    top: 1.5rem;
-    right: 1.5rem;
-  }
+
   
   .cell-name {
-    padding-right: 60px; /* Space for code */
     font-size: 1.1rem;
   }
   
