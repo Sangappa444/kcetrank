@@ -18,6 +18,16 @@ const DB_PATH = path.join(__dirname, '..', 'data', 'cutoffs.db');
 app.use(cors());
 app.use(express.json());
 
+// EJS Configuration
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Render main page
+app.get('/', (req, res) => {
+    res.render('index');
+});
+
 const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY, (err) => {
     if (err) {
         console.error('Error connecting to the database:', err.message);
