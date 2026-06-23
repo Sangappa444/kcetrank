@@ -1,0 +1,12 @@
+{
+  "name": "antigravityproject-root",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently \"npm --prefix backend start\" \"npm --prefix frontend run dev\"",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
+}
