@@ -13,8 +13,6 @@
     <!-- jsPDF and AutoTable for Reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <!-- Razorpay Checkout -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -653,79 +651,6 @@
             }
         });
 
-        // Handle Razorpay Payment
-        async function handlePayment(amount) {
-            const payBtn = document.getElementById('pay-button');
-            if (payBtn) {
-                payBtn.disabled = true;
-                payBtn.innerHTML = 'Processing Payment...';
-            }
-            
-            try {
-                const orderRes = await axios.post('/api/payment/order', {
-                    categories: selectedCategories,
-                    courses: selectedCourses
-                });
-                
-                const { id: order_id, amount: order_amount, currency } = orderRes.data;
-                
-                const options = {
-                    key: "rzp_test_SsfEoEMxq5grVv", // Razorpay Test Key ID
-                    amount: order_amount,
-                    currency: currency,
-                    name: "EDU YODHA",
-                    description: "KCET Prediction Unlock",
-                    order_id: order_id,
-                    handler: async function (response) {
-                        try {
-                            const verifyRes = await axios.post('/api/payment/verify', {
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature
-                            });
-                            
-                            if (verifyRes.data.status === 'success') {
-                                paymentSuccess = true;
-                                renderResults();
-                                // Trigger automatic PDF download upon payment success
-                                setTimeout(() => {
-                                    generatePDF();
-                                }, 500);
-                            } else {
-                                alert("Payment verification failed.");
-                            }
-                        } catch (verifyErr) {
-                            console.error("Verification error:", verifyErr);
-                            alert("Verification failed: " + (verifyErr.response?.data?.error || verifyErr.message));
-                        }
-                    },
-                    prefill: {
-                        name: "",
-                        email: "",
-                        contact: ""
-                    },
-                    theme: {
-                        color: "#6366f1"
-                    }
-                };
-                
-                const rzp = new window.Razorpay(options);
-                rzp.on('payment.failed', function (resp) {
-                    alert("Payment failed: " + resp.error.description);
-                });
-                rzp.open();
-            } catch (err) {
-                console.error("Payment error:", err);
-                alert("Failed to initiate payment: " + (err.response?.data?.error || err.message));
-            } finally {
-                if (payBtn) {
-                    payBtn.disabled = false;
-                    payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹${amount} & Unlock Results`;
-                    lucide.createIcons();
-                }
-            }
-        }
-
         function renderResults() {
             const resultsContainer = document.getElementById('results-section');
             if (results.length === 0) {
@@ -734,75 +659,6 @@
                         <i data-lucide="compass" class="empty-icon" style="width: 48px; height: 48px;"></i>
                         <h3>No colleges found in this range</h3>
                         <p>Try modifying your category or rank preferences.</p>
-                    </div>
-                `;
-                lucide.createIcons();
-                return;
-            }
-
-            if (!paymentSuccess) {
-                // Calculate dynamic amount: base ₹99, + ₹30 per extra category, + ₹10 per extra course
-                let amount = 99;
-                const extraCats = selectedCategories.length - 1;
-                const extraCourses = selectedCourses.length - 1;
-                if (extraCats > 0) amount += extraCats * 30;
-                if (extraCourses > 0) amount += extraCourses * 10;
-                
-                const rankVal = document.getElementById('rank').value;
-                
-                resultsContainer.innerHTML = `
-                    <div class="payment-panel">
-                        <h2 style="margin-bottom: 1rem; font-weight: 700; font-size: 1.8rem; background: linear-gradient(to right, #34d399, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
-                            <i data-lucide="lock" style="color: #6366f1; width: 24px; height: 24px;"></i>
-                            Unlock Cutoff Report
-                        </h2>
-                        <p class="payment-description" style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem; max-width: 480px; margin-left: auto; margin-right: auto;">
-                            We evaluated your rank of <strong>${rankVal}</strong> for <strong>${activeCategory}</strong>. We found <strong>${results.length} matching options</strong> based on your preferences. Complete payment to unlock the results grid and download the detailed PDF report.
-                        </p>
-
-                        <div class="payment-details-card" style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--surface-border); border-radius: 12px; width: 100%; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-around; align-items: center;">
-                            <div class="payment-detail-item" style="display: flex; flex-direction: column; align-items: center;">
-                                <span class="payment-detail-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Categories</span>
-                                <span class="payment-detail-value" style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary);">${selectedCategories.length} selected</span>
-                            </div>
-                            <div class="payment-detail-item" style="display: flex; flex-direction: column; align-items: center;">
-                                <span class="payment-detail-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Courses</span>
-                                <span class="payment-detail-value" style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary);">${selectedCourses.length > 0 ? selectedCourses.length : 'All'}</span>
-                            </div>
-                            <div class="payment-detail-item" style="display: flex; flex-direction: column; align-items: center;">
-                                <span class="payment-detail-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Total Amount</span>
-                                <span class="payment-detail-value highlight" style="font-size: 1.4rem; font-weight: 700; color: #34d399;">₹${amount}</span>
-                            </div>
-                        </div>
-
-                        <div class="payment-features-list" style="text-align: left; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
-                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
-                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Detailed PDF report for all matching combinations</span>
-                            </div>
-                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
-                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Accurate KEA cutoff rounds history (2023, 2024, and 2025)</span>
-                            </div>
-                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
-                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Admission chances analysis (Safe / Moderate / Tough)</span>
-                            </div>
-                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
-                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
-                                <span>Pricing: Base ₹99 + ₹30 per extra category + ₹10 per extra course</span>
-                            </div>
-                        </div>
-
-                        <button 
-                            onclick="handlePayment(${amount})" 
-                            class="btn-pay" 
-                            id="pay-button"
-                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; width: 100%; max-width: 350px; height: 52px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-left: auto; margin-right: auto; outline: none;"
-                        >
-                            <i data-lucide="credit-card" style="width: 18px; height: 18px;"></i>
-                            Pay ₹${amount} & Unlock Results
-                        </button>
                     </div>
                 `;
                 lucide.createIcons();
@@ -843,7 +699,7 @@
             resultsContainer.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <h2 style="font-weight: 600; font-size: 1.75rem;">
-                        Prediction Results (${results.length} matched) <span style="font-size: 0.9rem; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; margin-left: 0.5rem;"><i data-lucide="check" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Unlocked</span>
+                        Prediction Results (${results.length} matched) <span style="font-size: 0.9rem; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; margin-left: 0.5rem;"><i data-lucide="check" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Free Report</span>
                     </h2>
                     <button onclick="generatePDF()" id="pdf-download-btn" class="btn btn-download" style="background: #10b981; height: auto; padding: 0.6rem 1.2rem; margin-top: 0;">
                         <i data-lucide="download" style="width: 18px; height: 18px;"></i>

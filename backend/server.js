@@ -4,15 +4,10 @@ const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
-const Razorpay = require('razorpay');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
 const DB_PATH = path.join(__dirname, '..', 'data', 'cutoffs.db');
 
 app.use(cors());
@@ -221,61 +216,6 @@ app.get('/api/predict', (req, res) => {
         });
         res.json(predictions);
     });
-});
-
-
-// POST /api/payment/order
-app.post('/api/payment/order', async (req, res) => {
-    try {
-        const { categories, courses } = req.body;
-        const categoriesList = Array.isArray(categories) ? categories : [];
-        const coursesList = Array.isArray(courses) ? courses : [];
-        
-        let amount = 99; // Base amount in INR
-        if (categoriesList.length > 1) {
-            amount += (categoriesList.length - 1) * 30;
-        }
-        if (coursesList.length > 1) {
-            amount += (coursesList.length - 1) * 10;
-        }
-        
-        const amountInPaise = amount * 100; // Convert to paise for Razorpay
-        
-        const options = {
-            amount: amountInPaise,
-            currency: 'INR',
-            receipt: 'receipt_order_' + Date.now(),
-        };
-        const order = await razorpay.orders.create(options);
-        res.json({
-            id: order.id,
-            currency: order.currency,
-            amount: order.amount
-        });
-    } catch (error) {
-        console.error("Order creation error:", error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// POST /api/payment/verify
-app.post('/api/payment/verify', (req, res) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET;
-    
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-        return res.status(400).json({ error: 'Missing payment details' });
-    }
-
-    const hmac = crypto.createHmac('sha256', key_secret);
-    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
-    const generated_signature = hmac.digest('hex');
-    
-    if (generated_signature === razorpay_signature) {
-        res.json({ status: 'success', message: 'Payment verified successfully' });
-    } else {
-        res.status(400).json({ status: 'failure', message: 'Invalid payment signature' });
-    }
 });
 
 
