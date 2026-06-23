@@ -13,6 +13,8 @@
     <!-- jsPDF and AutoTable for Reports -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <!-- Razorpay Checkout -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -64,18 +66,47 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="category">Quota Category</label>
-                    <select id="category">
-                        <!-- Categories will populate here -->
-                    </select>
+                    <label>Quota Category</label>
+                    <div class="multi-select-container" id="category-container">
+                        <div class="multi-select-trigger" id="category-trigger">
+                            <span class="selected-text" id="category-selected-text">Select Category</span>
+                            <i data-lucide="chevron-down" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <div class="multi-select-dropdown" id="category-dropdown">
+                            <div class="dropdown-search-wrapper">
+                                <input type="text" placeholder="Search category..." class="dropdown-search" id="category-search" oninput="filterCategories(this.value)">
+                            </div>
+                            <div class="checkbox-list-controls">
+                                <button type="button" class="control-link" id="category-select-all">Select All</button>
+                                <button type="button" class="control-link" id="category-clear-all">Clear</button>
+                            </div>
+                            <div class="checkbox-list" id="category-checkbox-list">
+                                <!-- Categories checkboxes will populate here -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="course" id="course-label">Preferred Course (Optional)</label>
-                    <select id="course">
-                        <option value="">All Courses</option>
-                        <!-- Courses will populate here -->
-                    </select>
+                    <label id="course-label">Preferred Course (Optional)</label>
+                    <div class="multi-select-container" id="course-container">
+                        <div class="multi-select-trigger" id="course-trigger">
+                            <span class="selected-text" id="course-selected-text">All Courses</span>
+                            <i data-lucide="chevron-down" style="width: 18px; height: 18px;"></i>
+                        </div>
+                        <div class="multi-select-dropdown" id="course-dropdown">
+                            <div class="dropdown-search-wrapper">
+                                <input type="text" placeholder="Search course..." class="dropdown-search" id="course-search" oninput="filterCourses(this.value)">
+                            </div>
+                            <div class="checkbox-list-controls">
+                                <button type="button" class="control-link" id="course-select-all">Select All</button>
+                                <button type="button" class="control-link" id="course-clear-all">Clear</button>
+                            </div>
+                            <div class="checkbox-list" id="course-checkbox-list">
+                                <!-- Courses checkboxes will populate here -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn" id="submit-btn">
@@ -126,6 +157,8 @@
         let paymentLoading = false;
         let pdfLoading = false;
         let searched = false;
+        let selectedCategories = [];
+        let selectedCourses = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             // Fetch categories list
@@ -143,6 +176,7 @@
             renderCategoryTabs();
             updateCategoryDropdown();
             loadCourses();
+            setupMultiSelectDropdowns();
         });
 
         function renderCategoryTabs() {
@@ -172,29 +206,79 @@
             searched = false;
             paymentSuccess = false;
             
+            // Clear search fields and show all options
+            document.getElementById('course-search').value = '';
+            document.getElementById('category-search').value = '';
+            filterCourses('');
+            filterCategories('');
+            
             // Re-render tabs
             renderCategoryTabs();
             
             // Update label
-            document.getElementById('course-label').textContent = `Preferred ${cat} Course (Optional)`;
+            document.getElementById('course-label').textContent = `Preferred Course (Optional)`;
             
-            loadCourses();
+            // Clear selections but don't fetch from server again since all courses are already loaded
+            selectedCourses = [];
+            updateCourseTriggerText();
+            renderCourseCheckboxes();
         }
 
         async function loadCourses() {
-            const courseSelect = document.getElementById('course');
-            courseSelect.innerHTML = `<option value="">Loading courses...</option>`;
+            const listContainer = document.getElementById('course-checkbox-list');
+            listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">Loading courses...</div>`;
+            selectedCourses = [];
+            updateCourseTriggerText();
+            
             try {
-                const res = await axios.get(`/api/courses?category=${activeCategory}`);
+                const res = await axios.get(`/api/courses`);
                 courses = res.data;
-                let html = `<option value="">All ${activeCategory} Courses</option>`;
-                courses.forEach(c => {
-                    html += `<option value="${c}">${c}</option>`;
-                });
-                courseSelect.innerHTML = html;
+                renderCourseCheckboxes();
             } catch (err) {
                 console.error(err);
-                courseSelect.innerHTML = `<option value="">Error loading courses</option>`;
+                listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: var(--danger-color);">Error loading courses</div>`;
+            }
+        }
+
+        function renderCourseCheckboxes() {
+            const listContainer = document.getElementById('course-checkbox-list');
+            if (courses.length === 0) {
+                listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">No courses available</div>`;
+                return;
+            }
+            let html = '';
+            courses.forEach(c => {
+                const checked = selectedCourses.includes(c) ? 'checked' : '';
+                html += `
+                    <label class="checkbox-option" data-value="${c}">
+                        <input type="checkbox" value="${c}" ${checked} onchange="handleCourseChange(this)">
+                        <span title="${c}">${c}</span>
+                    </label>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function handleCourseChange(checkbox) {
+            const val = checkbox.value;
+            if (checkbox.checked) {
+                if (!selectedCourses.includes(val)) {
+                    selectedCourses.push(val);
+                }
+            } else {
+                selectedCourses = selectedCourses.filter(c => c !== val);
+            }
+            updateCourseTriggerText();
+        }
+
+        function updateCourseTriggerText() {
+            const selectedText = document.getElementById('course-selected-text');
+            if (selectedCourses.length === 0) {
+                selectedText.textContent = `All Courses`;
+            } else if (selectedCourses.length === 1) {
+                selectedText.textContent = selectedCourses[0];
+            } else {
+                selectedText.textContent = `${selectedCourses.length} Courses Selected`;
             }
         }
 
@@ -203,6 +287,12 @@
             document.getElementById('results-section').style.display = 'none';
             searched = false;
             paymentSuccess = false;
+
+            // Clear search fields and show all options
+            document.getElementById('course-search').value = '';
+            document.getElementById('category-search').value = '';
+            filterCourses('');
+            filterCategories('');
 
             if (region === 'RK') {
                 document.getElementById('rk-btn').classList.add('active');
@@ -216,24 +306,271 @@
         }
 
         function updateCategoryDropdown() {
-            const categorySelect = document.getElementById('category');
             const list = quotaRegion === 'RK' ? rkCategories : hkCategories;
+            const defaultCat = quotaRegion === 'RK' ? 'GM' : 'GMH';
+            selectedCategories = [defaultCat];
+            
+            renderCategoryCheckboxes(list);
+            updateCategoryTriggerText();
+        }
+
+        function renderCategoryCheckboxes(list) {
+            const listContainer = document.getElementById('category-checkbox-list');
             let html = '';
             list.forEach(c => {
-                html += `<option value="${c}">${c}</option>`;
+                const checked = selectedCategories.includes(c) ? 'checked' : '';
+                html += `
+                    <label class="checkbox-option" data-value="${c}">
+                        <input type="checkbox" value="${c}" ${checked} onchange="handleCategoryChange(this)">
+                        <span>${c}</span>
+                    </label>
+                `;
             });
-            categorySelect.innerHTML = html;
+            listContainer.innerHTML = html;
+        }
+
+        function handleCategoryChange(checkbox) {
+            const val = checkbox.value;
+            if (checkbox.checked) {
+                if (!selectedCategories.includes(val)) {
+                    selectedCategories.push(val);
+                }
+            } else {
+                selectedCategories = selectedCategories.filter(c => c !== val);
+            }
+            updateCategoryTriggerText();
+        }
+
+        function updateCategoryTriggerText() {
+            const selectedText = document.getElementById('category-selected-text');
+            if (selectedCategories.length === 0) {
+                selectedText.textContent = 'Select Category';
+            } else if (selectedCategories.length === 1) {
+                selectedText.textContent = selectedCategories[0];
+            } else {
+                selectedText.textContent = `${selectedCategories.length} Categories Selected`;
+            }
+        }
+
+        // Global search filtering functions
+        function normalizeText(str) {
+            if (!str) return '';
+            return str.toLowerCase()
+                .replace(/[^a-z0-9]/g, '') // remove spaces and non-alphanumeric
+                .replace(/artifical/g, 'artificial')
+                .replace(/sicence/g, 'science')
+                .replace(/virutal/g, 'virtual')
+                .replace(/mathamatics/g, 'mathematics')
+                .replace(/pharmaceutic/g, 'pharmaceutical')
+                .replace(/dpharm/g, 'pharmd')
+                .replace(/pharmad/g, 'pharmd')
+                .replace(/bpharma/g, 'bpharm');
+        }
+
+        function matchCourse(courseName, query) {
+            const normCourse = normalizeText(courseName);
+            const normQuery = normalizeText(query);
+            
+            // Check direct substring match after normalization
+            if (normCourse.includes(normQuery)) {
+                return true;
+            }
+            
+            // Check abbreviation expansions
+            const lowerQuery = query.toLowerCase().trim();
+            if (lowerQuery === 'cs' || lowerQuery === 'cse') {
+                if (normCourse.includes('computerscience')) return true;
+            }
+            if (lowerQuery === 'is' || lowerQuery === 'ise') {
+                if (normCourse.includes('informationscience')) return true;
+            }
+            if (lowerQuery === 'ec' || lowerQuery === 'ece') {
+                if (normCourse.includes('electronics') && (normCourse.includes('communication') || normCourse.includes('communicatio'))) return true;
+            }
+            if (lowerQuery === 'ee' || lowerQuery === 'eee') {
+                if (normCourse.includes('electrical') && normCourse.includes('electronics')) return true;
+            }
+            if (lowerQuery === 'me' || lowerQuery === 'mech') {
+                if (normCourse.includes('mechanical')) return true;
+            }
+            if (lowerQuery === 'cv' || lowerQuery === 'ce') {
+                if (normCourse.includes('civil')) return true;
+            }
+            if (lowerQuery === 'bt') {
+                if (normCourse.includes('biotech') || normCourse.includes('biotechnology')) return true;
+            }
+            if (lowerQuery === 'ai' || lowerQuery === 'ml' || lowerQuery === 'aiml') {
+                if (normCourse.includes('artificialintelligence') || normCourse.includes('machinelearning') || normCourse.includes('aiml')) return true;
+            }
+            if (lowerQuery === 'iot') {
+                if (normCourse.includes('internetofthings') || normCourse.includes('iot')) return true;
+            }
+            if (lowerQuery === 'ag' || lowerQuery === 'agri') {
+                if (normCourse.includes('agriculture') || normCourse.includes('agbusiness') || normCourse.includes('agri')) return true;
+            }
+            
+            // Check if query words are all present in the course name
+            const queryWords = query.toLowerCase().split(/\s+/).filter(Boolean);
+            if (queryWords.length > 1) {
+                return queryWords.every(word => {
+                    const normWord = normalizeText(word);
+                    return normCourse.includes(normWord);
+                });
+            }
+            
+            return false;
+        }
+
+        function filterCategories(term) {
+            const query = term.toLowerCase().trim();
+            const options = document.querySelectorAll('#category-checkbox-list .checkbox-option');
+            options.forEach(opt => {
+                const text = opt.querySelector('span').textContent.toLowerCase();
+                opt.style.display = text.includes(query) ? 'flex' : 'none';
+            });
+        }
+
+        function filterCourses(term) {
+            const query = term.trim();
+            const options = document.querySelectorAll('#course-checkbox-list .checkbox-option');
+            options.forEach(opt => {
+                const courseName = opt.querySelector('span').textContent;
+                if (!query) {
+                    opt.style.display = 'flex';
+                } else {
+                    opt.style.display = matchCourse(courseName, query) ? 'flex' : 'none';
+                }
+            });
+        }
+
+        function setupMultiSelectDropdowns() {
+            const categoryTrigger = document.getElementById('category-trigger');
+            const categoryDropdown = document.getElementById('category-dropdown');
+            const courseTrigger = document.getElementById('course-trigger');
+            const courseDropdown = document.getElementById('course-dropdown');
+
+            categoryTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                categoryTrigger.classList.toggle('active');
+                const show = categoryTrigger.classList.contains('active');
+                categoryDropdown.style.display = show ? 'flex' : 'none';
+                
+                // Close course dropdown
+                courseTrigger.classList.remove('active');
+                courseDropdown.style.display = 'none';
+            });
+
+            courseTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                courseTrigger.classList.toggle('active');
+                const show = courseTrigger.classList.contains('active');
+                courseDropdown.style.display = show ? 'flex' : 'none';
+                
+                // Close category dropdown
+                categoryTrigger.classList.remove('active');
+                categoryDropdown.style.display = 'none';
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!document.getElementById('category-container').contains(e.target)) {
+                    categoryTrigger.classList.remove('active');
+                    categoryDropdown.style.display = 'none';
+                }
+                if (!document.getElementById('course-container').contains(e.target)) {
+                    courseTrigger.classList.remove('active');
+                    courseDropdown.style.display = 'none';
+                }
+            });
+
+            // Prevent closing on clicking inside
+            categoryDropdown.addEventListener('click', (e) => e.stopPropagation());
+            courseDropdown.addEventListener('click', (e) => e.stopPropagation());
+
+            // Prevent Enter key in search from submitting the form
+            document.getElementById('category-search').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+            document.getElementById('course-search').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                }
+            });
+
+            // Select all / Clear all
+            document.getElementById('category-select-all').addEventListener('click', () => {
+                const options = document.querySelectorAll('#category-checkbox-list .checkbox-option');
+                options.forEach(opt => {
+                    if (opt.style.display !== 'none') {
+                        const cb = opt.querySelector('input[type="checkbox"]');
+                        if (cb && !cb.checked) {
+                            cb.checked = true;
+                            if (!selectedCategories.includes(cb.value)) {
+                                selectedCategories.push(cb.value);
+                            }
+                        }
+                    }
+                });
+                updateCategoryTriggerText();
+            });
+
+            document.getElementById('category-clear-all').addEventListener('click', () => {
+                const options = document.querySelectorAll('#category-checkbox-list .checkbox-option');
+                options.forEach(opt => {
+                    if (opt.style.display !== 'none') {
+                        const cb = opt.querySelector('input[type="checkbox"]');
+                        if (cb && cb.checked) {
+                            cb.checked = false;
+                            selectedCategories = selectedCategories.filter(c => c !== cb.value);
+                        }
+                    }
+                });
+                updateCategoryTriggerText();
+            });
+
+            document.getElementById('course-select-all').addEventListener('click', () => {
+                const options = document.querySelectorAll('#course-checkbox-list .checkbox-option');
+                options.forEach(opt => {
+                    if (opt.style.display !== 'none') {
+                        const cb = opt.querySelector('input[type="checkbox"]');
+                        if (cb && !cb.checked) {
+                            cb.checked = true;
+                            if (!selectedCourses.includes(cb.value)) {
+                                selectedCourses.push(cb.value);
+                            }
+                        }
+                    }
+                });
+                updateCourseTriggerText();
+            });
+
+            document.getElementById('course-clear-all').addEventListener('click', () => {
+                const options = document.querySelectorAll('#course-checkbox-list .checkbox-option');
+                options.forEach(opt => {
+                    if (opt.style.display !== 'none') {
+                        const cb = opt.querySelector('input[type="checkbox"]');
+                        if (cb && cb.checked) {
+                            cb.checked = false;
+                            selectedCourses = selectedCourses.filter(c => c !== cb.value);
+                        }
+                    }
+                });
+                updateCourseTriggerText();
+            });
         }
 
         // Form Submission
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const rankVal = document.getElementById('rank').value;
-            const catVal = document.getElementById('category').value;
-            const courseVal = document.getElementById('course').value;
             const submitBtn = document.getElementById('submit-btn');
             
-            if (!rankVal || !catVal) return;
+            if (!rankVal) return;
+            if (selectedCategories.length === 0) {
+                alert('Please select at least one Quota Category.');
+                return;
+            }
             
             submitBtn.disabled = true;
             submitBtn.innerHTML = 'Evaluating...';
@@ -247,14 +584,17 @@
             `;
             
             try {
-                const res = await axios.get(`/api/predict`, {
-                    params: {
-                        rank: rankVal,
-                        category: catVal,
-                        course_name: courseVal,
-                        course_category: activeCategory
-                    }
-                });
+                const params = {
+                    rank: rankVal,
+                    category: selectedCategories.join(',')
+                };
+                if (selectedCourses.length > 0) {
+                    params.course_name = selectedCourses.join(',');
+                } else {
+                    params.course_category = activeCategory;
+                }
+
+                const res = await axios.get(`/api/predict`, { params });
                 results = res.data;
                 searched = true;
                 paymentSuccess = false;
@@ -274,6 +614,79 @@
             }
         });
 
+        // Handle Razorpay Payment
+        async function handlePayment(amount) {
+            const payBtn = document.getElementById('pay-button');
+            if (payBtn) {
+                payBtn.disabled = true;
+                payBtn.innerHTML = 'Processing Payment...';
+            }
+            
+            try {
+                const orderRes = await axios.post('/api/payment/order', {
+                    categories: selectedCategories,
+                    courses: selectedCourses
+                });
+                
+                const { id: order_id, amount: order_amount, currency } = orderRes.data;
+                
+                const options = {
+                    key: "rzp_test_SsfEoEMxq5grVv", // Razorpay Test Key ID
+                    amount: order_amount,
+                    currency: currency,
+                    name: "EDU YODHA",
+                    description: "KCET Prediction Unlock",
+                    order_id: order_id,
+                    handler: async function (response) {
+                        try {
+                            const verifyRes = await axios.post('/api/payment/verify', {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            });
+                            
+                            if (verifyRes.data.status === 'success') {
+                                paymentSuccess = true;
+                                renderResults();
+                                // Trigger automatic PDF download upon payment success
+                                setTimeout(() => {
+                                    generatePDF();
+                                }, 500);
+                            } else {
+                                alert("Payment verification failed.");
+                            }
+                        } catch (verifyErr) {
+                            console.error("Verification error:", verifyErr);
+                            alert("Verification failed: " + (verifyErr.response?.data?.error || verifyErr.message));
+                        }
+                    },
+                    prefill: {
+                        name: "",
+                        email: "",
+                        contact: ""
+                    },
+                    theme: {
+                        color: "#6366f1"
+                    }
+                };
+                
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (resp) {
+                    alert("Payment failed: " + resp.error.description);
+                });
+                rzp.open();
+            } catch (err) {
+                console.error("Payment error:", err);
+                alert("Failed to initiate payment: " + (err.response?.data?.error || err.message));
+            } finally {
+                if (payBtn) {
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = `<i data-lucide="credit-card" style="width: 18px; height: 18px;"></i> Pay ₹${amount} & Unlock Results`;
+                    lucide.createIcons();
+                }
+            }
+        }
+
         function renderResults() {
             const resultsContainer = document.getElementById('results-section');
             if (results.length === 0) {
@@ -287,13 +700,85 @@
                 lucide.createIcons();
                 return;
             }
-            
+
+            if (!paymentSuccess) {
+                // Calculate dynamic amount: base ₹99, + ₹30 per extra category, + ₹10 per extra course
+                let amount = 99;
+                const extraCats = selectedCategories.length - 1;
+                const extraCourses = selectedCourses.length - 1;
+                if (extraCats > 0) amount += extraCats * 30;
+                if (extraCourses > 0) amount += extraCourses * 10;
+                
+                const rankVal = document.getElementById('rank').value;
+                
+                resultsContainer.innerHTML = `
+                    <div class="payment-panel">
+                        <h2 style="margin-bottom: 1rem; font-weight: 700; font-size: 1.8rem; background: linear-gradient(to right, #34d399, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; justify-content: center; gap: 0.75rem;">
+                            <i data-lucide="lock" style="color: #6366f1; width: 24px; height: 24px;"></i>
+                            Unlock Cutoff Report
+                        </h2>
+                        <p class="payment-description" style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6; margin-bottom: 2rem; max-width: 480px; margin-left: auto; margin-right: auto;">
+                            We evaluated your rank of <strong>${rankVal}</strong> for <strong>${activeCategory}</strong>. We found <strong>${results.length} matching options</strong> based on your preferences. Complete payment to unlock the results grid and download the detailed PDF report.
+                        </p>
+
+                        <div class="payment-details-card" style="background: rgba(15, 23, 42, 0.5); border: 1px solid var(--surface-border); border-radius: 12px; width: 100%; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-around; align-items: center;">
+                            <div class="payment-detail-item" style="display: flex; flex-direction: column; align-items: center;">
+                                <span class="payment-detail-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Categories</span>
+                                <span class="payment-detail-value" style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary);">${selectedCategories.length} selected</span>
+                            </div>
+                            <div class="payment-detail-item" style="display: flex; flex-direction: column; align-items: center;">
+                                <span class="payment-detail-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Courses</span>
+                                <span class="payment-detail-value" style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary);">${selectedCourses.length > 0 ? selectedCourses.length : 'All'}</span>
+                            </div>
+                            <div class="payment-detail-item" style="display: flex; flex-direction: column; align-items: center;">
+                                <span class="payment-detail-label" style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Total Amount</span>
+                                <span class="payment-detail-value highlight" style="font-size: 1.4rem; font-weight: 700; color: #34d399;">₹${amount}</span>
+                            </div>
+                        </div>
+
+                        <div class="payment-features-list" style="text-align: left; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 420px; margin-left: auto; margin-right: auto;">
+                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
+                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
+                                <span>Detailed PDF report for all matching combinations</span>
+                            </div>
+                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
+                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
+                                <span>Accurate KEA cutoff rounds history (2023, 2024, and 2025)</span>
+                            </div>
+                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
+                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
+                                <span>Admission chances analysis (Safe / Moderate / Tough)</span>
+                            </div>
+                            <div class="payment-feature-item" style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: var(--text-primary);">
+                                <span class="payment-feature-icon" style="color: #34d399; display: flex; align-items: center;"><i data-lucide="check-circle-2" style="width: 16px; height: 16px;"></i></span>
+                                <span>Pricing: Base ₹99 + ₹30 per extra category + ₹10 per extra course</span>
+                            </div>
+                        </div>
+
+                        <button 
+                            onclick="handlePayment(${amount})" 
+                            class="btn-pay" 
+                            id="pay-button"
+                            style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; width: 100%; max-width: 350px; height: 52px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.75rem; margin-left: auto; margin-right: auto; outline: none;"
+                        >
+                            <i data-lucide="credit-card" style="width: 18px; height: 18px;"></i>
+                            Pay ₹${amount} & Unlock Results
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
             let cardsHtml = '';
             results.forEach(result => {
                 cardsHtml += `
                     <div class="college-card chances-${result.chances}">
                         <div class="card-header">
-                            <span class="college-code">${result.college_code}</span>
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <span class="college-code">${result.college_code}</span>
+                                <span class="college-code" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">${result.category}</span>
+                            </div>
                             <span class="badge ${result.chances}">${result.chances}</span>
                         </div>
                         <h3 class="college-name">${result.college_name}</h3>
@@ -319,7 +804,7 @@
             resultsContainer.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <h2 style="font-weight: 600; font-size: 1.75rem;">
-                        Prediction Results (${results.length} matched)
+                        Prediction Results (${results.length} matched) <span style="font-size: 0.9rem; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; margin-left: 0.5rem;"><i data-lucide="check" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Unlocked</span>
                     </h2>
                     <button onclick="generatePDF()" id="pdf-download-btn" class="btn btn-download" style="background: #10b981; height: auto; padding: 0.6rem 1.2rem; margin-top: 0;">
                         <i data-lucide="download" style="width: 18px; height: 18px;"></i>
@@ -342,19 +827,17 @@
             
             try {
                 const rankVal = document.getElementById('rank').value;
-                const catVal = document.getElementById('category').value;
-                const courseVal = document.getElementById('course').value;
                 
-                const params = new URLSearchParams({ category: catVal });
-                if (courseVal) params.append('course_name', courseVal);
+                const params = new URLSearchParams({ category: selectedCategories.join(',') });
+                if (selectedCourses.length > 0) params.append('course_name', selectedCourses.join(','));
                 if (activeCategory) params.append('course_category', activeCategory);
                 
                 const response = await axios.get(`/api/cutoffs?${params.toString()}`);
                 let rows = response.data;
                 
-                // Filter to only include college + course combinations present in the prediction results
-                const allowedCombinations = new Set(results.map(r => `${r.college_code}|${r.course_name}`));
-                rows = rows.filter(r => allowedCombinations.has(`${r.college_code}|${r.course_name}`));
+                // Filter to only include college + course + category combinations present in the prediction results
+                const allowedCombinations = new Set(results.map(r => `${r.college_code}|${r.course_name}|${r.category}`));
+                rows = rows.filter(r => allowedCombinations.has(`${r.college_code}|${r.course_name}|${r.category}`));
                 
                 if (!rows || rows.length === 0) {
                     alert('No cutoff data available for the selected inputs.');
@@ -402,25 +885,46 @@
                 doc.setFontSize(18);
                 doc.text('KCET Cutoff History Report', 14, 20);
                 doc.setFontSize(12);
-                doc.text(`Category: ${catVal} | User Rank: ${rankVal} | Stream: ${activeCategory}`, 14, 28);
-                if (courseVal) {
-                    doc.text(`Preferred Course: ${courseVal}`, 14, 34);
+                
+                const categoriesStr = selectedCategories.length > 5 
+                    ? `${selectedCategories.slice(0, 5).join(', ')}... (+${selectedCategories.length - 5} more)`
+                    : selectedCategories.join(', ');
+                doc.text(`Category: ${categoriesStr} | User Rank: ${rankVal} | Stream: ${activeCategory}`, 14, 28);
+                
+                if (selectedCourses.length > 0) {
+                    const coursesStr = selectedCourses.length > 3
+                        ? `${selectedCourses.slice(0, 3).join(', ')}... (+${selectedCourses.length - 3} more)`
+                        : selectedCourses.join(', ');
+                    doc.text(`Preferred Course: ${coursesStr}`, 14, 34);
+                } else {
+                    doc.text(`Preferred Course: All Courses`, 14, 34);
                 }
+                
                 doc.text('Full cutoff history for 2023, 2024, and 2025 (Rounds 1–3)', 14, 40);
                 
-                const grouped = {};
+                // Group cutoff rows by Category, then by Course Name, then by College
+                const groups = {};
                 rows.forEach(r => {
-                    const key = `${r.college_name} \n(${r.course_name})`;
-                    if (!grouped[key]) {
-                        grouped[key] = {
-                            name: key,
+                    const cat = r.category;
+                    const course = r.course_name;
+                    const college = r.college_name;
+                    
+                    if (!groups[cat]) {
+                        groups[cat] = {};
+                    }
+                    if (!groups[cat][course]) {
+                        groups[cat][course] = {};
+                    }
+                    if (!groups[cat][course][college]) {
+                        groups[cat][course][college] = {
+                            college_name: college,
                             '2023_1': '-', '2023_2': '-', '2023_3': '-',
                             '2024_1': '-', '2024_2': '-', '2024_3': '-',
                             '2025_1': '-', '2025_2': '-', '2025_3': '-',
                         };
                     }
                     if (r.year && r.round) {
-                        grouped[key][`${r.year}_${r.round}`] = r.cutoff_rank;
+                        groups[cat][course][college][`${r.year}_${r.round}`] = r.cutoff_rank;
                     }
                 });
                 
@@ -459,53 +963,96 @@
                     return [254, 202, 202];
                 };
                 
-                const tableColumn = [
-                    'College Name & Course',
-                    'Chance',
-                    '2023 R1', '2023 R2', '2023 R3',
-                    '2024 R1', '2024 R2', '2024 R3',
-                    '2025 R1', '2025 R2', '2025 R3'
-                ];
+                const getCategoryOrder = (cat) => {
+                    let index = rkCategories.indexOf(cat);
+                    if (index === -1) index = hkCategories.indexOf(cat);
+                    if (index === -1) return 999;
+                    return index;
+                };
                 
-                const tableRows = Object.values(grouped)
-                .sort((a, b) => {
-                    const aMin = getMinRank(a);
-                    const bMin = getMinRank(b);
-                    if (aMin !== bMin) return aMin - bMin;
-                    return a.name.localeCompare(b.name);
-                })
-                .map(g => [
-                    g.name,
-                    getChance(g),
-                    g['2023_1'], g['2023_2'], g['2023_3'],
-                    g['2024_1'], g['2024_2'], g['2024_3'],
-                    g['2025_1'], g['2025_2'], g['2025_3']
-                ]);
+                const sortedCategories = Object.keys(groups).sort((a, b) => getCategoryOrder(a) - getCategoryOrder(b));
+                let startY = 48;
                 
-                doc.autoTable({
-                    startY: 52,
-                    head: [tableColumn],
-                    body: tableRows,
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 2 },
-                    headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], halign: 'center' },
-                    columnStyles: { 0: { cellWidth: 90 }, 1: { cellWidth: 30 } },
-                    bodyStyles: { halign: 'center' },
-                    didParseCell: data => {
-                        if (data.section === 'body' && data.column.index === 0) {
-                            data.cell.styles.halign = 'left';
-                        }
-                        if (data.section === 'body' && data.column.index === 1) {
-                            data.cell.styles.fillColor = getChanceColor(data.cell.raw);
-                            data.cell.styles.textColor = [17, 24, 39];
-                            data.cell.styles.fontStyle = 'bold';
-                        }
+                sortedCategories.forEach((cat, catIdx) => {
+                    const coursesObj = groups[cat];
+                    const sortedCourses = Object.keys(coursesObj).sort((a, b) => a.localeCompare(b));
+                    
+                    if (catIdx > 0 && startY < doc.internal.pageSize.getHeight() - 50) {
+                        startY += 8;
                     }
+                    
+                    sortedCourses.forEach((course, courseIdx) => {
+                        const collegesObj = coursesObj[course];
+                        
+                        const sortedColleges = Object.values(collegesObj).sort((a, b) => {
+                            const aMin = getMinRank(a);
+                            const bMin = getMinRank(b);
+                            if (aMin !== bMin) return aMin - bMin;
+                            return a.college_name.localeCompare(b.college_name);
+                        });
+                        
+                        if (startY > doc.internal.pageSize.getHeight() - 45) {
+                            doc.addPage();
+                            startY = 20;
+                        }
+                        
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(30, 41, 59);
+                        doc.text(`Quota Category: ${cat}   |   Course: ${course}`, 14, startY);
+                        startY += 5;
+                        
+                        const tableColumn = [
+                            'College Name',
+                            'Chance',
+                            '2023 R1', '2023 R2', '2023 R3',
+                            '2024 R1', '2024 R2', '2024 R3',
+                            '2025 R1', '2025 R2', '2025 R3'
+                        ];
+                        
+                        const tableRows = sortedColleges.map(g => [
+                            g.college_name,
+                            getChance(g),
+                            g['2023_1'], g['2023_2'], g['2023_3'],
+                            g['2024_1'], g['2024_2'], g['2024_3'],
+                            g['2025_1'], g['2025_2'], g['2025_3']
+                        ]);
+                        
+                        doc.autoTable({
+                            startY: startY,
+                            head: [tableColumn],
+                            body: tableRows,
+                            theme: 'grid',
+                            styles: { fontSize: 8, cellPadding: 2 },
+                            headStyles: { fillColor: [49, 46, 129], textColor: [255, 255, 255], halign: 'center' },
+                            columnStyles: { 
+                                0: { cellWidth: 130, halign: 'left' }, 
+                                1: { cellWidth: 22, fontStyle: 'bold', halign: 'center' } 
+                            },
+                            bodyStyles: { halign: 'center' },
+                            didParseCell: data => {
+                                if (data.section === 'body' && data.column.index === 0) {
+                                    data.cell.styles.halign = 'left';
+                                }
+                                if (data.section === 'body' && data.column.index === 1) {
+                                    data.cell.styles.fillColor = getChanceColor(data.cell.raw);
+                                    data.cell.styles.textColor = [17, 24, 39];
+                                    data.cell.styles.fontStyle = 'bold';
+                                }
+                            },
+                            margin: { bottom: 15 }
+                        });
+                        
+                        startY = doc.lastAutoTable.finalY + 12;
+                    });
                 });
                 
                 addPdfBranding();
                 
-                const filename = `KCET_${activeCategory}_Cutoffs_${catVal}_Rank${rankVal}.pdf`;
+                const catFileStr = selectedCategories.length > 3 
+                    ? `${selectedCategories.slice(0, 3).join('_')}_multi` 
+                    : selectedCategories.join('_');
+                const filename = `KCET_${activeCategory}_Cutoffs_${catFileStr}_Rank${rankVal}.pdf`;
                 const pdfData = doc.output('blob');
                 const pdfBlob = new Blob([pdfData], { type: 'application/pdf' });
                 const url = URL.createObjectURL(pdfBlob);

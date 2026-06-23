@@ -3,8 +3,16 @@ const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
+const Razorpay = require('razorpay');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 const DB_PATH = path.join(__dirname, '..', 'data', 'cutoffs.db');
 
 app.use(cors());
@@ -45,7 +53,7 @@ function getCategoryForCourse(courseName) {
         name.includes('HORTICULTURE') || name.includes('SERICULTURE') || name.includes('FISHERIES') || 
         name.includes('FOOD SCI') || name.includes('DAIRY') || name.includes('NUTRITION') || 
         name.includes('DIETETICS') || name.includes('COMMUNITY SCIENCE') || name.includes('FOOD TECHNOLOGY') || 
-        name.includes('FOOD TECH')) {
+        name.includes('FOOD TECH') || name.includes('AG. ') || name.includes('D.TECH')) {
         return 'Agriculture';
     }
     
@@ -91,15 +99,10 @@ app.get('/api/colleges', (req, res) => {
 
 // GET /api/courses
 app.get('/api/courses', (req, res) => {
-    const { category } = req.query;
     const query = 'SELECT DISTINCT course_name FROM cutoffs ORDER BY course_name';
     db.all(query, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        
-        let courses = rows.map(row => row.course_name);
-        if (category) {
-            courses = courses.filter(course => getCategoryForCourse(course) === category);
-        }
+        const courses = rows.map(row => row.course_name);
         res.json(courses);
     });
 });
@@ -114,8 +117,24 @@ app.get('/api/cutoffs', (req, res) => {
     if (year) { query += ' AND year = ?'; params.push(year); }
     if (round) { query += ' AND round = ?'; params.push(round); }
     if (college_code) { query += ' AND college_code = ?'; params.push(college_code); }
-    if (category) { query += ' AND category = ?'; params.push(category); }
-    if (course_name) { query += ' AND course_name = ?'; params.push(course_name); }
+    
+    if (category) {
+        const categoriesList = Array.isArray(category) ? category : category.split(',').filter(Boolean);
+        if (categoriesList.length > 0) {
+            const placeholders = categoriesList.map(() => '?').join(',');
+            query += ` AND category IN (${placeholders})`;
+            params.push(...categoriesList);
+        }
+    }
+    
+    if (course_name) {
+        const coursesList = Array.isArray(course_name) ? course_name : course_name.split(',').filter(Boolean);
+        if (coursesList.length > 0) {
+            const placeholders = coursesList.map(() => '?').join(',');
+            query += ` AND course_name IN (${placeholders})`;
+            params.push(...coursesList);
+        }
+    }
     
     query += ' ORDER BY college_name, course_name, year, round';
     
@@ -139,17 +158,30 @@ app.get('/api/predict', (req, res) => {
     }
     
     const userRank = parseInt(rank, 10);
+    const categoriesList = Array.isArray(category) ? category : category.split(',').filter(Boolean);
+    
+    if (categoriesList.length === 0) {
+        return res.status(400).json({ error: 'At least one category is required' });
+    }
     
     let query = `
-        SELECT college_code, college_name, course_name, cutoff_rank, year, round 
+        SELECT college_code, college_name, course_name, cutoff_rank, year, round, category 
         FROM cutoffs 
-        WHERE category = ?
+        WHERE 1=1
     `;
-    let params = [category];
+    let params = [];
+    
+    const catPlaceholders = categoriesList.map(() => '?').join(',');
+    query += ` AND category IN (${catPlaceholders})`;
+    params.push(...categoriesList);
     
     if (course_name) {
-        query += ' AND course_name = ?';
-        params.push(course_name);
+        const coursesList = Array.isArray(course_name) ? course_name : course_name.split(',').filter(Boolean);
+        if (coursesList.length > 0) {
+            const placeholders = coursesList.map(() => '?').join(',');
+            query += ` AND course_name IN (${placeholders})`;
+            params.push(...coursesList);
+        }
     }
     
     db.all(query, params, (err, rows) => {
@@ -189,6 +221,61 @@ app.get('/api/predict', (req, res) => {
         });
         res.json(predictions);
     });
+});
+
+
+// POST /api/payment/order
+app.post('/api/payment/order', async (req, res) => {
+    try {
+        const { categories, courses } = req.body;
+        const categoriesList = Array.isArray(categories) ? categories : [];
+        const coursesList = Array.isArray(courses) ? courses : [];
+        
+        let amount = 99; // Base amount in INR
+        if (categoriesList.length > 1) {
+            amount += (categoriesList.length - 1) * 30;
+        }
+        if (coursesList.length > 1) {
+            amount += (coursesList.length - 1) * 10;
+        }
+        
+        const amountInPaise = amount * 100; // Convert to paise for Razorpay
+        
+        const options = {
+            amount: amountInPaise,
+            currency: 'INR',
+            receipt: 'receipt_order_' + Date.now(),
+        };
+        const order = await razorpay.orders.create(options);
+        res.json({
+            id: order.id,
+            currency: order.currency,
+            amount: order.amount
+        });
+    } catch (error) {
+        console.error("Order creation error:", error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// POST /api/payment/verify
+app.post('/api/payment/verify', (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        return res.status(400).json({ error: 'Missing payment details' });
+    }
+
+    const hmac = crypto.createHmac('sha256', key_secret);
+    hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+    const generated_signature = hmac.digest('hex');
+    
+    if (generated_signature === razorpay_signature) {
+        res.json({ status: 'success', message: 'Payment verified successfully' });
+    } else {
+        res.status(400).json({ status: 'failure', message: 'Invalid payment signature' });
+    }
 });
 
 
