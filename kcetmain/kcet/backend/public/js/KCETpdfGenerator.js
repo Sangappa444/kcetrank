@@ -69,7 +69,8 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, activeCa
         };
       }
       if (r.year && r.round) {
-        grouped[key][`${r.year}_${r.round}`] = r.cutoff_rank;
+        grouped[key].college_name = r.college_name;
+        grouped[key][`${r.year}_${r.round}`] = r.cutoff_rank_num || r.cutoff_rank;
       }
     });
 

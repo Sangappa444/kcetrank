@@ -788,7 +788,14 @@
         best colleges you can unlock with your rank.</p>
     </header>
 
-
+    <!-- Recent Downloads Section -->
+    <div id="recent-downloads-section" style="display: none; margin-top: 20px; margin-bottom: 30px; padding: 20px; background: white; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+      <h3 style="font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="history" style="width: 18px; height: 18px; color: #3b82f6;"></i>
+        Your Unlocked Reports
+      </h3>
+      <div id="recent-downloads-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;"></div>
+    </div>
 
     <section class="category-tabs-container"> <!-- Changed to section for SEO structure -->
       <h2 class="section-title">Select Admission Stream</h2>
@@ -810,7 +817,7 @@
           </div>
 
           <div class="form-group">
-            <label for="rank">Your KCET Rank</label>
+            <label for="rank" id="rank-label">Your KCET Rank</label>
             <input type="number" id="rank" placeholder="e.g., 15000" required min="1" />
           </div>
 
@@ -933,7 +940,7 @@
       </div>
     </div>
 
-
+    </div>
 
     <div id="kea-warning-alert" class="kea-alert" style="display: none;">
       <div class="kea-alert-content">
@@ -1829,7 +1836,7 @@
     });
   </script>
   <script src="/kcet/js/KCETpdfGenerator.js?v=15"></script>
-  <script src="/kcet/js/KCETmain.js?v=15"></script>
+  <script src="/kcet/js/KCETmain.js?v=17"></script>
   <script>lucide.createIcons();</script>
 
 </body>

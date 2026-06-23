@@ -189,20 +189,7 @@ router.get('/Oauth/login', async (req, res) => {
  */
 router.get('/api/categories', (req, res) => {
     try {
-        const categories = [
-            'Engineering',
-            'Agriculture',
-            'Veterinary',
-            'B.Pharm',
-            'D.Pharm',
-            'B.Sc Nursing',
-            'BNYS',
-            'Allied Health Sciences',
-            'BPT',
-            'BPO',
-            'Architecture'
-        ];
-        res.json(categories);
+        res.json(CATEGORIES);
     } catch (err) {
         console.error('[KCET] Error fetching categories:', err.message);
         res.status(500).json({ error: 'Failed to fetch categories' });

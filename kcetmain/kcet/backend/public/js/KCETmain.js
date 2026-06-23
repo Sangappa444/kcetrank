@@ -827,6 +827,11 @@ function renderTabs() {
       filterCourses('');
       filterCategories('');
 
+      const rankLabel = document.getElementById('rank-label');
+      if (rankLabel) {
+        rankLabel.textContent = 'Your KCET Rank';
+      }
+
       renderTabs();
 
       selectedCourses = [];
@@ -1074,14 +1079,17 @@ function renderRecentSearches() {
         }
 
         card.innerHTML = `
-      <div class="download-card-header">
-        <strong style="font-size: 14px; color: #0f172a;">Rank ${search.rank}</strong><br/>
-        <span style="color: #3b82f6; font-weight: 500;">${search.activeCategory}</span> • ${search.quotaRegion === 'RK' ? 'Gen Quota' : '371j Quota'}<br/>
-        <span style="color: #64748b; font-size: 12px; margin-top: 4px; display: inline-block;">${catText}</span>
+      <div class="download-card-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+        <div style="flex: 1;">
+          <strong style="font-size: 14px; color: #0f172a;">Rank ${search.rank}</strong>
+          <span style="color: #64748b; font-size: 12px; margin-left: 6px;">(${search.quotaRegion === 'RK' ? 'Gen' : '371j'})</span><br/>
+          <span style="color: #3b82f6; font-weight: 600; font-size: 13px;">${search.activeCategory}</span>
+          <div style="color: #64748b; font-size: 11px; margin-top: 4px; line-height: 1.3;">${catText}</div>
+        </div>
+        <button class="download-card-btn" style="padding: 6px 10px; font-size: 12px; flex-shrink: 0; white-space: nowrap;">
+          <i data-lucide="download" style="width: 14px; height: 14px;"></i> Download
+        </button>
       </div>
-      <button class="download-card-btn">
-        <i data-lucide="download" style="width: 16px; height: 16px;"></i> Download Free
-      </button>
     `;
 
         const btn = card.querySelector('.download-card-btn');
@@ -1108,7 +1116,7 @@ function renderRecentSearches() {
             if (!response.ok) throw new Error("API request failed");
 
             let data = await response.json();
-            data.sort((a, b) => a.cutOffRank - b.cutOffRank);
+            data.sort((a, b) => (a.cutoff_rank_num || a.cutoff_rank) - (b.cutoff_rank_num || b.cutoff_rank));
 
             generatePDF({
               rank: search.rank,
@@ -1171,7 +1179,7 @@ function renderResultsGrid() {
           <i data-lucide="book-open" style="width: 14px; height: 14px; margin-right: 4px;"></i>
           ${result.course_name}
         </div>
-        <div class="cell-cutoff">${result.cutoff_rank}</div>
+        <div class="cell-cutoff">${result.cutoff_rank_num || result.cutoff_rank}</div>
         <div class="cell-year">${result.year} / R${result.round}</div>
         <div>
           <span class="badge ${result.chances}">${result.chances}</span>
