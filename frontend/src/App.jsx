@@ -613,7 +613,7 @@ function App() {
     localStorage.removeItem('kcet_unlimited_access');
   };
 
-  // Wrapper for PDF Download which forces Razorpay checkout
+  // Wrapper for PDF Download — direct download, no payment required
   const downloadReportPDF = async (type = 'results') => {
     const itemsToPrint = type === 'shortlist' ? shortlist : getProcessedResults();
     
@@ -622,116 +622,7 @@ function App() {
       return;
     }
 
-    const searchSig = `${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`;
-    const paidKey = `kcet_paid_${searchSig}`;
-    
-    // Check if user has unlimited access via coupon (admin45) or already paid for this search
-    const hasUnlimitedAccess = localStorage.getItem('kcet_unlimited_access') || discountPercent === 100;
-    const hasPaid = localStorage.getItem(paidKey) || hasUnlimitedAccess;
-    
-    if (hasPaid) {
-      generateReportPDF(type, itemsToPrint);
-      return;
-    }
-
-    // Otherwise, trigger Razorpay payment flow
-    setPdfLoading(true);
-    try {
-      // 1. Create order on Express backend (includes categories, courses, and couponCode)
-      const orderRes = await axios.post(`${API_BASE_URL}/payment/order`, {
-        categories: selectedCategories,
-        courses: selectedCourses,
-        couponCode: appliedCoupon
-      });
-      
-      const order = orderRes.data;
-
-      // Check if order is free (applied coupon is admin45)
-      if (order.amount === 0 || order.id === 'free_order_admin45' || order.isFree) {
-        // Grant unlimited access for coupon users
-        localStorage.setItem('kcet_unlimited_access', Date.now().toString());
-        localStorage.setItem(paidKey, Date.now().toString());
-        
-        generateReportPDF(type, itemsToPrint);
-
-        // Verify/log coupon transaction asynchronously in backend
-        axios.post(`${API_BASE_URL}/payment/verify-payment`, {
-          razorpay_order_id: order.id,
-          razorpay_payment_id: 'free_payment_' + (appliedCoupon || 'coupon'),
-          razorpay_signature: 'free_sig_' + (appliedCoupon || 'coupon'),
-          couponCode: appliedCoupon || 'admin45',
-          categories: selectedCategories,
-          courses: selectedCourses
-        }).catch(err => console.error("Background verification error:", err));
-
-        return;
-      }
-
-      // 2. Open Razorpay options for paid transaction
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T7059J4jkUkRIU',
-        amount: order.amount,
-        currency: order.currency,
-        name: "EDU YODHA",
-        description: "KCET Cutoff PDF Report",
-        order_id: order.id,
-        handler: async function (response) {
-          try {
-            // Unlock locally immediately for good UX
-            localStorage.setItem(paidKey, Date.now().toString());
-            
-            // Trigger PDF generation
-            generateReportPDF(type, itemsToPrint);
-
-            // Verify signature in the background
-            axios.post(`${API_BASE_URL}/payment/verify-payment`, {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              categories: selectedCategories,
-              courses: selectedCourses
-            }).catch(err => console.error("Background verification error:", err));
-
-          } catch (err) {
-            console.error(err);
-            setPdfLoading(false);
-          }
-        },
-        prefill: {
-          name: "Student",
-          email: "kea.vidyarthi@gmail.com",
-          contact: "8880870645"
-        },
-        theme: {
-          color: "#4F46E5"
-        },
-        modal: {
-          ondismiss: function () {
-            setPdfLoading(false);
-            alert("Payment Cancelled");
-          }
-        }
-      };
-
-      if (!window.Razorpay) {
-        alert("Razorpay checkout is loading... Please click again in a moment.");
-        setPdfLoading(false);
-        return;
-      }
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (resp) {
-        alert("Payment Failed: " + resp.error.description);
-        setPdfLoading(false);
-      });
-      
-      rzp.open();
-      
-    } catch (err) {
-      console.error("Payment initialization failed:", err);
-      alert("Failed to initiate payment. Please make sure the local server is running.");
-      setPdfLoading(false);
-    }
+    generateReportPDF(type, itemsToPrint);
   };
 
   const toggleFaq = (idx) => {
@@ -893,8 +784,6 @@ function App() {
 
   const processedResults = getProcessedResults();
   const availableDistricts = getAvailableDistricts();
-  
-  const isReportUnlocked = localStorage.getItem('kcet_unlimited_access') || localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`) || discountPercent === 100;
 
   return (
     <div className="app-container">
@@ -1258,104 +1147,26 @@ function App() {
         <div className="results-container">
           
           <div className="results-header-row">
-            <div className="results-title-wrapper">
-              <h2 className="results-title">Prediction Results ({processedResults.length} matches)</h2>
-              {isReportUnlocked && (
-                <div className="unlocked-heading-tab">
-                  <Check size={16} style={{marginRight: '6px'}} />
-                  Premium Report Unlocked
-                </div>
-              )}
-            </div>
+            <h2 className="results-title">Prediction Results ({processedResults.length} matches)</h2>
           </div>
 
-          {/* Premium PDF Report Lock Panel with Dynamic Pricing & Coupon code */}
+          {/* PDF Report Download Panel */}
           {processedResults.length > 0 && (
             <div className="payment-panel glass-panel">
               <div className="payment-layout">
                 <div className="pricing-details-col">
-                  <h3 className="lock-title">🔒 Premium Cutoff PDF Report</h3>
-                  <p className="payment-info-text">Unlock full 3-year cutoff history sheet (2023-2025 rounds side-by-side) in high-resolution landscape A4 format.</p>
-                  <div className="pricing-breakdown">
-                    <div className="breakdown-item">
-                      <span>Base Report Fee:</span>
-                      <span>₹99</span>
-                    </div>
-                    {selectedCategories.length > 1 && (
-                      <div className="breakdown-item">
-                        <span>Extra Category Surcharges ({selectedCategories.length - 1} extra):</span>
-                        <span>+₹{(selectedCategories.length - 1) * 30}</span>
-                      </div>
-                    )}
-                    {selectedCourses.length > 1 && (
-                      <div className="breakdown-item">
-                        <span>Extra Course Surcharges ({selectedCourses.length - 1} extra):</span>
-                        <span>+₹{(selectedCourses.length - 1) * 10}</span>
-                      </div>
-                    )}
-                    {discountPercent > 0 && (
-                      <div className="breakdown-item discount">
-                        <span>Coupon Applied ({appliedCoupon}):</span>
-                        <span>-100% (-₹{(99 + (selectedCategories.length > 1 ? (selectedCategories.length - 1) * 30 : 0) + (selectedCourses.length > 1 ? (selectedCourses.length - 1) * 10 : 0))})</span>
-                      </div>
-                    )}
-                    <div className="price-total">
-                      <span>Total Price:</span>
-                      <span className="total-amount-val">₹{getDynamicPrice()}</span>
-                    </div>
-                  </div>
+                  <h3 className="lock-title">📄 Cutoff PDF Report</h3>
+                  <p className="payment-info-text">Download full 3-year cutoff history sheet (2023-2025 rounds side-by-side) in high-resolution landscape A4 format.</p>
                 </div>
-
                 <div className="coupon-actions-col">
-                  {appliedCoupon ? (
-                    <div className="applied-coupon-box">
-                      <span className="coupon-success-msg">🎉 100% discount applied!</span>
-                      <p className="coupon-desc">You unlocked free report access via code <strong>{appliedCoupon}</strong>.</p>
-                      <button type="button" className="btn-remove-coupon" onClick={handleRemoveCoupon}>Remove Coupon</button>
-                    </div>
-                  ) : showCouponInput ? (
-                    <div className="coupon-input-wrapper">
-                      <label htmlFor="coupon" className="coupon-label">Enter Coupon Code</label>
-                      <div className="coupon-field-row">
-                        <input 
-                          type="text" 
-                          id="coupon" 
-                          placeholder="e.g. admin100" 
-                          value={couponCode}
-                          onChange={(e) => setCouponCode(e.target.value)}
-                        />
-                        <button type="button" className="btn-apply-coupon" onClick={handleApplyCoupon}>Apply</button>
-                      </div>
-                      {couponError && <span className="coupon-error-msg">⚠️ {couponError}</span>}
-                      {couponSuccess && <span className="coupon-success-msg">✓ {couponSuccess}</span>}
-                    </div>
-                  ) : (
-                    <button 
-                      type="button" 
-                      className="btn-show-coupon-toggle" 
-                      onClick={() => setShowCouponInput(true)}
-                    >
-                      I have a coupon code
-                    </button>
-                  )}
-
                   <button 
                     type="button"
                     onClick={() => downloadReportPDF('results')} 
-                    className={`btn predict-submit-btn payment-cta-btn ${isReportUnlocked ? 'unlocked' : ''}`}
+                    className="btn predict-submit-btn payment-cta-btn unlocked"
                     disabled={pdfLoading}
                   >
                     <Download size={18} />
-                    {pdfLoading 
-                      ? 'Processing...' 
-                      : (isReportUnlocked
-                        ? 'Download Report (Unlocked)' 
-                        : (getDynamicPrice() === 0 
-                          ? 'Unlock & Download Report (FREE)' 
-                          : `Unlock & Download Report (₹${getDynamicPrice()})`
-                        )
-                      )
-                    }
+                    {pdfLoading ? 'Generating PDF...' : 'Download Report (Free)'}
                   </button>
                 </div>
               </div>
