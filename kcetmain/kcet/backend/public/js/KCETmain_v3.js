@@ -17,8 +17,10 @@ const hkCategories = [
 
 let selectedCategories = [];
 let selectedCourses = [];
+let selectedColleges = [];
 let quotaRegion = 'RK';
 let allCourses = [];
+let allColleges = [];
 
 // Elements
 const tabsContainer = document.getElementById('tabs-container');
@@ -66,7 +68,8 @@ let appState = {
 function getSearchSignature() {
   const catStr = [...selectedCategories].sort().join(',');
   const courseStr = [...selectedCourses].sort().join(',');
-  return btoa(`${appState.rank}_${appState.activeCategory}_${catStr}_${courseStr}`);
+  const collegeStr = [...selectedColleges].sort().join(',');
+  return btoa(`${appState.rank}_${appState.activeCategory}_${catStr}_${courseStr}_${collegeStr}`);
 }
 
 // Multi-Select Helper Functions
@@ -128,6 +131,15 @@ function filterCourses(term) {
   });
 }
 
+function filterColleges(term) {
+  const query = term.toLowerCase().trim();
+  const options = document.querySelectorAll('#college-checkbox-list .checkbox-option');
+  options.forEach(opt => {
+    const text = opt.querySelector('span').textContent.toLowerCase();
+    opt.style.display = text.includes(query) ? 'flex' : 'none';
+  });
+}
+
 function updateCategoryTriggerText() {
   const selectedText = document.getElementById('category-selected-text');
   if (selectedCategories.length === 0) {
@@ -170,6 +182,16 @@ function handleCourseChange(checkbox) {
   updateCourseTriggerText();
 }
 
+function handleCollegeChange(checkbox) {
+  const val = checkbox.value;
+  if (checkbox.checked) {
+    if (!selectedColleges.includes(val)) selectedColleges.push(val);
+  } else {
+    selectedColleges = selectedColleges.filter(c => c !== val);
+  }
+  updateCollegeTriggerText();
+}
+
 function renderCategoryCheckboxes(list) {
   const listContainer = document.getElementById('category-checkbox-list');
   let html = '';
@@ -206,6 +228,25 @@ function renderCourseCheckboxes() {
   listContainer.innerHTML = html;
 }
 
+function renderCollegeCheckboxes() {
+  const listContainer = document.getElementById('college-checkbox-list');
+  if (allColleges.length === 0) {
+    listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: #6b7280;">No colleges available</div>`;
+    return;
+  }
+  let html = '';
+  allColleges.forEach(c => {
+    const checked = selectedColleges.includes(c.college_code) ? 'checked' : '';
+    html += `
+      <label class="checkbox-option" data-value="${c.college_code}">
+        <input type="checkbox" value="${c.college_code}" ${checked} onchange="handleCollegeChange(this)">
+        <span title="${c.college_name}">[${c.college_code}] - ${c.college_name}</span>
+      </label>
+    `;
+  });
+  listContainer.innerHTML = html;
+}
+
 function updateCategoryDropdown() {
   const list = quotaRegion === 'RK' ? rkCategories : hkCategories;
   const defaultCat = quotaRegion === 'RK' ? 'GM' : 'GMH';
@@ -231,6 +272,8 @@ function setupMultiSelectDropdowns() {
   const categoryDropdown = document.getElementById('category-dropdown');
   const courseTrigger = document.getElementById('course-trigger');
   const courseDropdown = document.getElementById('course-dropdown');
+  const collegeTrigger = document.getElementById('college-trigger');
+  const collegeDropdown = document.getElementById('college-dropdown');
 
   categoryTrigger.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -242,6 +285,8 @@ function setupMultiSelectDropdowns() {
 
     courseTrigger.classList.remove('active');
     courseDropdown.style.display = 'none';
+    collegeTrigger.classList.remove('active');
+    collegeDropdown.style.display = 'none';
   });
 
   courseTrigger.addEventListener('click', (e) => {
@@ -254,6 +299,22 @@ function setupMultiSelectDropdowns() {
 
     categoryTrigger.classList.remove('active');
     categoryDropdown.style.display = 'none';
+    collegeTrigger.classList.remove('active');
+    collegeDropdown.style.display = 'none';
+  });
+
+  collegeTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    collegeTrigger.classList.toggle('active');
+    const show = collegeTrigger.classList.contains('active');
+    collegeDropdown.style.display = show ? 'flex' : 'none';
+    if (show) document.body.style.overflow = 'hidden';
+    else document.body.style.overflow = '';
+
+    categoryTrigger.classList.remove('active');
+    categoryDropdown.style.display = 'none';
+    courseTrigger.classList.remove('active');
+    courseDropdown.style.display = 'none';
   });
 
   const closeCategoryModal = () => {
@@ -325,42 +386,62 @@ function setupMultiSelectDropdowns() {
   });
 
   document.getElementById('category-clear-all').addEventListener('click', () => {
-    document.querySelectorAll('#category-checkbox-list .checkbox-option').forEach(opt => {
-      if (opt.style.display !== 'none') {
-        const cb = opt.querySelector('input[type="checkbox"]');
-        if (cb && cb.checked) {
-          cb.checked = false;
-          selectedCategories = selectedCategories.filter(c => c !== cb.value);
-        }
-      }
+    const visible = Array.from(document.querySelectorAll('#category-checkbox-list .checkbox-option')).filter(opt => opt.style.display !== 'none');
+    visible.forEach(opt => {
+      const val = opt.getAttribute('data-value');
+      selectedCategories = selectedCategories.filter(c => c !== val);
+      opt.querySelector('input').checked = false;
     });
     updateCategoryTriggerText();
   });
-
+  // Course buttons
+  document.getElementById('course-close').addEventListener('click', () => {
+    courseTrigger.classList.remove('active');
+    courseDropdown.style.display = 'none';
+    document.body.style.overflow = '';
+  });
   document.getElementById('course-select-all').addEventListener('click', () => {
-    document.querySelectorAll('#course-checkbox-list .checkbox-option').forEach(opt => {
-      if (opt.style.display !== 'none') {
-        const cb = opt.querySelector('input[type="checkbox"]');
-        if (cb && !cb.checked) {
-          cb.checked = true;
-          if (!selectedCourses.includes(cb.value)) selectedCourses.push(cb.value);
-        }
-      }
+    const visible = Array.from(document.querySelectorAll('#course-checkbox-list .checkbox-option')).filter(opt => opt.style.display !== 'none');
+    visible.forEach(opt => {
+      const val = opt.getAttribute('data-value');
+      if (!selectedCourses.includes(val)) selectedCourses.push(val);
+      opt.querySelector('input').checked = true;
+    });
+    updateCourseTriggerText();
+  });
+  document.getElementById('course-clear-all').addEventListener('click', () => {
+    const visible = Array.from(document.querySelectorAll('#course-checkbox-list .checkbox-option')).filter(opt => opt.style.display !== 'none');
+    visible.forEach(opt => {
+      const val = opt.getAttribute('data-value');
+      selectedCourses = selectedCourses.filter(c => c !== val);
+      opt.querySelector('input').checked = false;
     });
     updateCourseTriggerText();
   });
 
-  document.getElementById('course-clear-all').addEventListener('click', () => {
-    document.querySelectorAll('#course-checkbox-list .checkbox-option').forEach(opt => {
-      if (opt.style.display !== 'none') {
-        const cb = opt.querySelector('input[type="checkbox"]');
-        if (cb && cb.checked) {
-          cb.checked = false;
-          selectedCourses = selectedCourses.filter(c => c !== cb.value);
-        }
-      }
+  // College buttons
+  document.getElementById('college-close').addEventListener('click', () => {
+    collegeTrigger.classList.remove('active');
+    collegeDropdown.style.display = 'none';
+    document.body.style.overflow = '';
+  });
+  document.getElementById('college-select-all').addEventListener('click', () => {
+    const visible = Array.from(document.querySelectorAll('#college-checkbox-list .checkbox-option')).filter(opt => opt.style.display !== 'none');
+    visible.forEach(opt => {
+      const val = opt.getAttribute('data-value');
+      if (!selectedColleges.includes(val)) selectedColleges.push(val);
+      opt.querySelector('input').checked = true;
     });
-    updateCourseTriggerText();
+    updateCollegeTriggerText();
+  });
+  document.getElementById('college-clear-all').addEventListener('click', () => {
+    const visible = Array.from(document.querySelectorAll('#college-checkbox-list .checkbox-option')).filter(opt => opt.style.display !== 'none');
+    visible.forEach(opt => {
+      const val = opt.getAttribute('data-value');
+      selectedColleges = selectedColleges.filter(c => c !== val);
+      opt.querySelector('input').checked = false;
+    });
+    updateCollegeTriggerText();
   });
 }
 
@@ -706,6 +787,7 @@ async function init() {
 
   await fetchCategories();
   await fetchCourses();
+  await fetchColleges();
 
   // Show recent searches on load
   renderRecentSearches();
@@ -791,6 +873,40 @@ async function fetchCourses() {
       listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: #DB4437;">Error loading courses</div>`;
     }
     Toastify({ text: "Could not load courses", style: { background: "#DB4437" } }).showToast();
+  }
+}
+
+async function fetchColleges() {
+  const listContainer = document.getElementById('college-checkbox-list');
+  if (listContainer) {
+    listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: #6b7280;">Loading colleges...</div>`;
+  }
+  selectedColleges = [];
+  updateCollegeTriggerText();
+
+  try {
+    if (allColleges.length === 0) {
+      const res = await fetch(`${API_BASE_URL}/colleges`);
+      allColleges = await res.json();
+    }
+    renderCollegeCheckboxes();
+  } catch (err) {
+    if (listContainer) {
+      listContainer.innerHTML = `<div style="padding: 0.5rem; font-size: 0.9rem; color: #DB4437;">Error loading colleges</div>`;
+    }
+    Toastify({ text: "Could not load colleges", style: { background: "#DB4437" } }).showToast();
+  }
+}
+
+function updateCollegeTriggerText() {
+  const selectedText = document.getElementById('college-selected-text');
+  if (selectedColleges.length === 0) {
+    selectedText.textContent = `All Colleges`;
+  } else if (selectedColleges.length === 1) {
+    const college = allColleges.find(c => c.college_code === selectedColleges[0]);
+    selectedText.textContent = college ? `[${college.college_code}] ${college.college_name}` : selectedColleges[0];
+  } else {
+    selectedText.textContent = `${selectedColleges.length} Colleges Selected`;
   }
 }
 
@@ -963,11 +1079,12 @@ async function handlePredict(e) {
 
   try {
     const params = new URLSearchParams({
-      rank: appState.rank,
-      category: selectedCategories.join(','),
+      rank: rankInput.value,
+      category: Array.from(selectedCategories).join(','),
       course_category: appState.activeCategory
     });
     if (selectedCourses.length > 0) params.append('course_name', selectedCourses.join(','));
+    if (selectedColleges.length > 0) params.append('college_codes', selectedColleges.join(','));
 
     const response = await fetch(`${API_BASE_URL}/predict?${params.toString()}`);
     let sortedResults = await response.json();
@@ -1031,6 +1148,7 @@ function saveSearchToHistory() {
     activeCategory: appState.activeCategory,
     selectedCategories: [...selectedCategories],
     selectedCourses: [...selectedCourses],
+    selectedColleges: [...selectedColleges],
     timestamp: Date.now()
   };
 
@@ -1072,10 +1190,15 @@ function renderRecentSearches() {
 
         const cats = Array.isArray(search.selectedCategories) ? search.selectedCategories : [];
         const courses = Array.isArray(search.selectedCourses) ? search.selectedCourses : [];
+        const colleges = Array.isArray(search.selectedColleges) ? search.selectedColleges : [];
 
         let catText = cats.join(', ') || 'All Categories';
         if (courses.length > 0) {
           catText += `<br/><span style="opacity: 0.8; font-size: 11px; margin-top: 2px; display: inline-block;">Courses: ${courses.join(', ')}</span>`;
+        }
+        if (colleges.length > 0) {
+          const colStr = colleges.length > 4 ? `${colleges.slice(0, 4).join(', ')} ...(+${colleges.length - 4})` : colleges.join(', ');
+          catText += `<br/><span style="opacity: 0.8; font-size: 11px; margin-top: 2px; display: inline-block;">Colleges: ${colStr}</span>`;
         }
 
         card.innerHTML = `
@@ -1109,6 +1232,9 @@ function renderRecentSearches() {
             if (search.selectedCourses && search.selectedCourses.length > 0) {
               params.append('course_name', search.selectedCourses.join(','));
             }
+            if (search.selectedColleges && search.selectedColleges.length > 0) {
+              params.append('college_codes', search.selectedColleges.join(','));
+            }
             params.append('quota_region', search.quotaRegion === 'HK' ? 'HK' : 'RK');
 
             const response = await fetch(`${API_BASE_URL}/predict?${params.toString()}`);
@@ -1122,6 +1248,7 @@ function renderRecentSearches() {
               rank: search.rank,
               selectedCategories: search.selectedCategories,
               selectedCourses: search.selectedCourses,
+              selectedColleges: search.selectedColleges || [],
               activeCategory: search.activeCategory,
               results: data,
               API_BASE_URL,
@@ -1464,6 +1591,7 @@ function triggerPDFDownload() {
     rank: appState.rank,
     selectedCategories: selectedCategories,
     selectedCourses: selectedCourses,
+    selectedColleges: selectedColleges,
     activeCategory: appState.activeCategory,
     results: appState.rawResults || appState.results,
     API_BASE_URL,

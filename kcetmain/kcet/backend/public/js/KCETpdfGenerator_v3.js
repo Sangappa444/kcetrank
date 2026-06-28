@@ -1,7 +1,7 @@
 // public/js/pdfGenerator.js
 const { jsPDF } = window.jspdf;
 
-async function generatePDF({ rank, selectedCategories, selectedCourses, activeCategory, results, API_BASE_URL, setLoadingState }) {
+async function generatePDF({ rank, selectedCategories, selectedCourses, selectedColleges, activeCategory, results, API_BASE_URL, setLoadingState }) {
   setLoadingState(true);
   try {
     // Reuse the pre-fetched results from the predict API call instead of fetching again
@@ -48,12 +48,30 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, activeCa
 
     doc.setFontSize(18);
     doc.text('KCET Cutoff History Report', 14, 20);
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.text(`Categories: ${selectedCategories.join(', ')} | User Rank: ${rank} | Stream: ${activeCategory}`, 14, 28);
-    if (selectedCourses.length > 0) {
-      doc.text(`Selected Courses: ${selectedCourses.join(', ')}`, 14, 34);
+    
+    let yOffset = 34;
+    if (selectedCourses && selectedCourses.length > 0) {
+      doc.text(`Selected Courses: ${selectedCourses.join(', ')}`, 14, yOffset);
+      yOffset += 6;
+    } else {
+      doc.text(`Selected Courses: All Courses`, 14, yOffset);
+      yOffset += 6;
     }
-    doc.text('Full cutoff history for 2023, 2024, and 2025 (Rounds 1–3)', 14, 40);
+
+    if (selectedColleges && selectedColleges.length > 0) {
+      const colText = selectedColleges.length > 10 ? `${selectedColleges.slice(0, 10).join(', ')} ...(+${selectedColleges.length - 10} more)` : selectedColleges.join(', ');
+      doc.text(`Selected Colleges: ${colText}`, 14, yOffset);
+      yOffset += 6;
+    } else {
+      doc.text(`Selected Colleges: All Colleges`, 14, yOffset);
+      yOffset += 6;
+    }
+
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text('Full cutoff history for 2023, 2024, and 2025 (Rounds 1–3)', 14, yOffset);
 
     const grouped = {};
     rows.forEach(r => {
@@ -141,7 +159,7 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, activeCa
     console.log('[PDF] Grouped colleges count:', Object.keys(grouped).length);
 
     doc.autoTable({
-      startY: 52,
+      startY: yOffset + 5,
       head: [tableColumn],
       body: tableRows,
       theme: 'grid',

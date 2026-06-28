@@ -251,7 +251,12 @@ router.get('/api/cutoffs', async (req, res) => {
     let filter = {};
     if (year) filter.year = year;
     if (round) filter.round = round;
-    if (college_code) filter.college_code = college_code;
+    if (college_code) {
+        const codesList = Array.isArray(college_code) ? college_code : college_code.split(',').filter(Boolean);
+        if (codesList.length > 0) {
+            filter.college_code = { $in: codesList };
+        }
+    }
 
     // Handle category as comma-separated string or array
     if (category) {
@@ -332,6 +337,14 @@ router.get('/api/predict', async (req, res) => {
         // we can safely drop the course_name filter and just scan the whole stream DB, which is much faster than massive $in
         if (coursesList.length > 0 && coursesList.length < 50) {
             filter.course_name = { $in: coursesList };
+        }
+    }
+
+    // Apply College Search Filter
+    if (req.query.college_codes) {
+        const collegeCodesList = req.query.college_codes.split(',').filter(Boolean);
+        if (collegeCodesList.length > 0) {
+            filter.college_code = { $in: collegeCodesList };
         }
     }
 
@@ -515,7 +528,7 @@ router.post('/api/payment/verify-payment', async (req, res) => {
                 const categoriesList = Array.isArray(categories) ? categories : [];
                 const coursesList = Array.isArray(courses) ? courses : [];
 
-                let price = 99;
+                let price = 99; // Base amount in INR
                 if (categoriesList.length > 1) {
                     price += (categoriesList.length - 1) * 30;
                 }

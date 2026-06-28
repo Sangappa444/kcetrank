@@ -1685,3 +1685,259 @@ footer {
     padding-bottom: 0;
   }
 }
+
+/* Premium PDF Report Lock Panel Styles */
+.payment-panel {
+  margin-top: 1rem;
+  margin-bottom: 2.5rem;
+  padding: 2rem !important;
+  border-radius: 18px !important;
+  background: var(--surface-color);
+  animation: fadeInUp 0.6s var(--cubic-bezier);
+}
+
+.payment-layout {
+  display: flex;
+  justify-content: space-between;
+  gap: 2.5rem;
+  align-items: stretch;
+}
+
+.pricing-details-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-width: 600px;
+}
+
+.lock-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.payment-info-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.pricing-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.theme-light .pricing-breakdown {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.breakdown-item.discount {
+  color: var(--success-color);
+  font-weight: 700;
+}
+
+.price-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 1.15rem;
+  border-top: 1px dashed var(--surface-border);
+  padding-top: 0.65rem;
+  margin-top: 0.4rem;
+  color: var(--text-primary);
+}
+
+.total-amount-val {
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.coupon-actions-col {
+  width: 330px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--surface-border);
+  gap: 1.25rem;
+}
+
+.theme-light .coupon-actions-col {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.coupon-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.coupon-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.coupon-field-row {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.coupon-field-row input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.coupon-field-row input:focus {
+  border-color: var(--primary-color);
+}
+
+.btn-apply-coupon {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-apply-coupon:hover {
+  background: var(--primary-hover);
+}
+
+.coupon-error-msg {
+  color: var(--danger-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.coupon-success-msg {
+  color: var(--success-color);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.applied-coupon-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.coupon-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.btn-remove-coupon {
+  background: transparent;
+  border: none;
+  color: var(--danger-color);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.75rem;
+  width: fit-content;
+  text-align: left;
+}
+
+.payment-cta-btn {
+  width: 100% !important;
+  margin-top: 0 !important;
+  height: 48px !important;
+  font-size: 0.95rem !important;
+  border-radius: 10px !important;
+}
+
+.payment-cta-btn.unlocked {
+  background: #10b981 !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+}
+
+.payment-cta-btn.unlocked:hover {
+  background: #059669 !important;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Responsive adjustments for payments lock card */
+@media (max-width: 900px) {
+  .payment-layout {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .coupon-actions-col {
+    width: 100%;
+  }
+}
+
+.results-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.unlocked-heading-tab {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.1);
+}
+
+.btn-show-coupon-toggle {
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+.btn-show-coupon-toggle:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+}

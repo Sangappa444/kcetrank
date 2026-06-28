@@ -11,7 +11,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './index.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/kcet/api';
 
 function App() {
   const [rank, setRank] = useState('');
@@ -44,6 +44,14 @@ function App() {
   
   // Cache state for instant PDF download
   const [cachedCutoffs, setCachedCutoffs] = useState([]);
+  
+  // Coupon and dynamic pricing states
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+  const [discountPercent, setDiscountPercent] = useState(0);
+  const [showCouponInput, setShowCouponInput] = useState(false);
   
   // FAQ state
   const [faqExpanded, setFaqExpanded] = useState({});
@@ -349,17 +357,9 @@ function App() {
   };
 
   // Export Shortlist as PDF showing 3-year historical cutoffs side-by-side
-  const downloadReportPDF = async (type = 'results') => {
+  const generateReportPDF = async (type = 'results', itemsToPrint) => {
     setPdfLoading(true);
     try {
-      const itemsToPrint = type === 'shortlist' ? shortlist : getProcessedResults();
-      
-      if (itemsToPrint.length === 0) {
-        alert('No data available to print in PDF.');
-        setPdfLoading(false);
-        return;
-      }
-
       // 1. Get unique college codes to optimize the API fetch speed
       const uniqueCodes = Array.from(new Set(itemsToPrint.map(r => r.college_code)));
       const categoriesQuery = selectedCategories.join(',');
@@ -397,7 +397,7 @@ function App() {
           grouped[key][`${r.year}_${r.round}`] = r.cutoff_rank;
         }
       });
-
+      
       // 4. Create landscape PDF
       const doc = new jsPDF({ orientation: 'landscape', format: 'a4' });
       
@@ -566,6 +566,175 @@ function App() {
     }
   };
 
+  // Helpers for dynamic pricing and coupons
+  const getDynamicPrice = () => {
+    let price = 99;
+    if (selectedCategories.length > 1) {
+      price += (selectedCategories.length - 1) * 30;
+    }
+    if (selectedCourses.length > 1) {
+      price += (selectedCourses.length - 1) * 10;
+    }
+    if (discountPercent === 100) {
+      return 0;
+    }
+    return price;
+  };
+
+  const handleApplyCoupon = async (e) => {
+    if (e) e.preventDefault();
+    setCouponError('');
+    setCouponSuccess('');
+    
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code.');
+      return;
+    }
+    
+    try {
+      const res = await axios.post(`${API_BASE_URL}/payment/validate-coupon`, {
+        couponCode: couponCode.trim()
+      });
+      
+      if (res.data.success) {
+        setAppliedCoupon(res.data.couponCode);
+        setDiscountPercent(res.data.discountPercent);
+        setCouponSuccess(res.data.message || 'Coupon applied successfully!');
+      } else {
+        setCouponError(res.data.message || 'Invalid coupon code.');
+      }
+    } catch (err) {
+      console.error("Coupon validation error:", err);
+      setCouponError(err.response?.data?.message || 'Invalid coupon code.');
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon('');
+    setDiscountPercent(0);
+    setCouponCode('');
+    setCouponSuccess('');
+    setCouponError('');
+  };
+
+  // Wrapper for PDF Download which forces Razorpay checkout
+  const downloadReportPDF = async (type = 'results') => {
+    const itemsToPrint = type === 'shortlist' ? shortlist : getProcessedResults();
+    
+    if (itemsToPrint.length === 0) {
+      alert('No data available to print in PDF.');
+      return;
+    }
+
+    const searchSig = `${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`;
+    const paidKey = `kcet_paid_${searchSig}`;
+    
+    // Check if user has already unlocked this search report
+    const hasPaid = localStorage.getItem(paidKey) || discountPercent === 100;
+    
+    if (hasPaid) {
+      generateReportPDF(type, itemsToPrint);
+      return;
+    }
+
+    // Otherwise, trigger Razorpay payment flow
+    setPdfLoading(true);
+    try {
+      // 1. Create order on Express backend (includes categories, courses, and couponCode)
+      const orderRes = await axios.post(`${API_BASE_URL}/payment/order`, {
+        categories: selectedCategories,
+        courses: selectedCourses,
+        couponCode: appliedCoupon
+      });
+      
+      const order = orderRes.data;
+
+      // Check if order is free (applied coupon is admin100)
+      if (order.amount === 0 || order.id === 'free_order_admin100' || order.isFree) {
+        localStorage.setItem(paidKey, Date.now().toString());
+        
+        generateReportPDF(type, itemsToPrint);
+
+        // Verify/log coupon transaction asynchronously in backend
+        axios.post(`${API_BASE_URL}/payment/verify-payment`, {
+          razorpay_order_id: order.id,
+          razorpay_payment_id: 'free_payment_' + (appliedCoupon || 'coupon'),
+          razorpay_signature: 'free_sig_' + (appliedCoupon || 'coupon'),
+          couponCode: appliedCoupon || 'admin100',
+          categories: selectedCategories,
+          courses: selectedCourses
+        }).catch(err => console.error("Background verification error:", err));
+
+        return;
+      }
+
+      // 2. Open Razorpay options for paid transaction
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T7059J4jkUkRIU',
+        amount: order.amount,
+        currency: order.currency,
+        name: "EDU YODHA",
+        description: "KCET Cutoff PDF Report",
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            // Unlock locally immediately for good UX
+            localStorage.setItem(paidKey, Date.now().toString());
+            
+            // Trigger PDF generation
+            generateReportPDF(type, itemsToPrint);
+
+            // Verify signature in the background
+            axios.post(`${API_BASE_URL}/payment/verify-payment`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              categories: selectedCategories,
+              courses: selectedCourses
+            }).catch(err => console.error("Background verification error:", err));
+
+          } catch (err) {
+            console.error(err);
+            setPdfLoading(false);
+          }
+        },
+        prefill: {
+          name: "Student",
+          email: "kea.vidyarthi@gmail.com",
+          contact: "8880870645"
+        },
+        theme: {
+          color: "#4F46E5"
+        },
+        modal: {
+          ondismiss: function () {
+            setPdfLoading(false);
+            alert("Payment Cancelled");
+          }
+        }
+      };
+
+      if (!window.Razorpay) {
+        alert("Razorpay checkout is loading... Please click again in a moment.");
+        setPdfLoading(false);
+        return;
+      }
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (resp) {
+        alert("Payment Failed: " + resp.error.description);
+        setPdfLoading(false);
+      });
+      
+      rzp.open();
+      
+    } catch (err) {
+      console.error("Payment initialization failed:", err);
+      alert("Failed to initiate payment. Please make sure the local server is running.");
+      setPdfLoading(false);
+    }
+  };
+
   const toggleFaq = (idx) => {
     setFaqExpanded(prev => ({ ...prev, [idx]: !prev[idx] }));
   };
@@ -725,6 +894,8 @@ function App() {
 
   const processedResults = getProcessedResults();
   const availableDistricts = getAvailableDistricts();
+  
+  const isReportUnlocked = localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`) || discountPercent === 100;
 
   return (
     <div className="app-container">
@@ -1088,18 +1259,109 @@ function App() {
         <div className="results-container">
           
           <div className="results-header-row">
-            <h2 className="results-title">Prediction Results ({processedResults.length} matches)</h2>
-            {processedResults.length > 0 && (
-              <button 
-                type="button"
-                onClick={() => downloadReportPDF('results')} 
-                className="btn btn-download-results"
-                disabled={pdfLoading}
-              >
-                <Download size={16} /> {pdfLoading ? 'Generating PDF...' : `Download ${activeCategory} PDF Report`}
-              </button>
-            )}
+            <div className="results-title-wrapper">
+              <h2 className="results-title">Prediction Results ({processedResults.length} matches)</h2>
+              {isReportUnlocked && (
+                <div className="unlocked-heading-tab">
+                  <Check size={16} style={{marginRight: '6px'}} />
+                  Premium Report Unlocked
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Premium PDF Report Lock Panel with Dynamic Pricing & Coupon code */}
+          {processedResults.length > 0 && (
+            <div className="payment-panel glass-panel">
+              <div className="payment-layout">
+                <div className="pricing-details-col">
+                  <h3 className="lock-title">🔒 Premium Cutoff PDF Report</h3>
+                  <p className="payment-info-text">Unlock full 3-year cutoff history sheet (2023-2025 rounds side-by-side) in high-resolution landscape A4 format.</p>
+                  <div className="pricing-breakdown">
+                    <div className="breakdown-item">
+                      <span>Base Report Fee:</span>
+                      <span>₹99</span>
+                    </div>
+                    {selectedCategories.length > 1 && (
+                      <div className="breakdown-item">
+                        <span>Extra Category Surcharges ({selectedCategories.length - 1} extra):</span>
+                        <span>+₹{(selectedCategories.length - 1) * 30}</span>
+                      </div>
+                    )}
+                    {selectedCourses.length > 1 && (
+                      <div className="breakdown-item">
+                        <span>Extra Course Surcharges ({selectedCourses.length - 1} extra):</span>
+                        <span>+₹{(selectedCourses.length - 1) * 10}</span>
+                      </div>
+                    )}
+                    {discountPercent > 0 && (
+                      <div className="breakdown-item discount">
+                        <span>Coupon Applied ({appliedCoupon}):</span>
+                        <span>-100% (-₹{(99 + (selectedCategories.length > 1 ? (selectedCategories.length - 1) * 30 : 0) + (selectedCourses.length > 1 ? (selectedCourses.length - 1) * 10 : 0))})</span>
+                      </div>
+                    )}
+                    <div className="price-total">
+                      <span>Total Price:</span>
+                      <span className="total-amount-val">₹{getDynamicPrice()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="coupon-actions-col">
+                  {appliedCoupon ? (
+                    <div className="applied-coupon-box">
+                      <span className="coupon-success-msg">🎉 100% discount applied!</span>
+                      <p className="coupon-desc">You unlocked free report access via code <strong>{appliedCoupon}</strong>.</p>
+                      <button type="button" className="btn-remove-coupon" onClick={handleRemoveCoupon}>Remove Coupon</button>
+                    </div>
+                  ) : showCouponInput ? (
+                    <div className="coupon-input-wrapper">
+                      <label htmlFor="coupon" className="coupon-label">Enter Coupon Code</label>
+                      <div className="coupon-field-row">
+                        <input 
+                          type="text" 
+                          id="coupon" 
+                          placeholder="e.g. admin100" 
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value)}
+                        />
+                        <button type="button" className="btn-apply-coupon" onClick={handleApplyCoupon}>Apply</button>
+                      </div>
+                      {couponError && <span className="coupon-error-msg">⚠️ {couponError}</span>}
+                      {couponSuccess && <span className="coupon-success-msg">✓ {couponSuccess}</span>}
+                    </div>
+                  ) : (
+                    <button 
+                      type="button" 
+                      className="btn-show-coupon-toggle" 
+                      onClick={() => setShowCouponInput(true)}
+                    >
+                      I have a coupon code
+                    </button>
+                  )}
+
+                  <button 
+                    type="button"
+                    onClick={() => downloadReportPDF('results')} 
+                    className={`btn predict-submit-btn payment-cta-btn ${localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`) ? 'unlocked' : ''}`}
+                    disabled={pdfLoading}
+                  >
+                    <Download size={18} />
+                    {pdfLoading 
+                      ? 'Processing...' 
+                      : (localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`)
+                        ? 'Download Report (Unlocked)' 
+                        : (getDynamicPrice() === 0 
+                          ? 'Unlock & Download Report (FREE)' 
+                          : `Unlock & Download Report (₹${getDynamicPrice()})`
+                        )
+                      )
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
           
           {/* Controls Bar for Filters & Sorting */}
           <div className="results-controls-panel glass-panel">
