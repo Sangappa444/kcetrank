@@ -629,8 +629,9 @@ function App() {
     const searchSig = `${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`;
     const paidKey = `kcet_paid_${searchSig}`;
     
-    // Check if user has already unlocked this search report
-    const hasPaid = localStorage.getItem(paidKey) || discountPercent === 100;
+    // Check if user has unlimited access via coupon (admin45) or already paid for this search
+    const hasUnlimitedAccess = localStorage.getItem('kcet_unlimited_access') || discountPercent === 100;
+    const hasPaid = localStorage.getItem(paidKey) || hasUnlimitedAccess;
     
     if (hasPaid) {
       generateReportPDF(type, itemsToPrint);
@@ -649,8 +650,10 @@ function App() {
       
       const order = orderRes.data;
 
-      // Check if order is free (applied coupon is admin100)
-      if (order.amount === 0 || order.id === 'free_order_admin100' || order.isFree) {
+      // Check if order is free (applied coupon is admin45)
+      if (order.amount === 0 || order.id === 'free_order_admin45' || order.isFree) {
+        // Grant unlimited access for coupon users
+        localStorage.setItem('kcet_unlimited_access', Date.now().toString());
         localStorage.setItem(paidKey, Date.now().toString());
         
         generateReportPDF(type, itemsToPrint);
@@ -660,7 +663,7 @@ function App() {
           razorpay_order_id: order.id,
           razorpay_payment_id: 'free_payment_' + (appliedCoupon || 'coupon'),
           razorpay_signature: 'free_sig_' + (appliedCoupon || 'coupon'),
-          couponCode: appliedCoupon || 'admin100',
+          couponCode: appliedCoupon || 'admin45',
           categories: selectedCategories,
           courses: selectedCourses
         }).catch(err => console.error("Background verification error:", err));
@@ -895,7 +898,7 @@ function App() {
   const processedResults = getProcessedResults();
   const availableDistricts = getAvailableDistricts();
   
-  const isReportUnlocked = localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`) || discountPercent === 100;
+  const isReportUnlocked = localStorage.getItem('kcet_unlimited_access') || localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`) || discountPercent === 100;
 
   return (
     <div className="app-container">
@@ -1343,13 +1346,13 @@ function App() {
                   <button 
                     type="button"
                     onClick={() => downloadReportPDF('results')} 
-                    className={`btn predict-submit-btn payment-cta-btn ${localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`) ? 'unlocked' : ''}`}
+                    className={`btn predict-submit-btn payment-cta-btn ${isReportUnlocked ? 'unlocked' : ''}`}
                     disabled={pdfLoading}
                   >
                     <Download size={18} />
                     {pdfLoading 
                       ? 'Processing...' 
-                      : (localStorage.getItem(`kcet_paid_${rank}_${selectedCategories.join(',')}_${selectedCourses.join(',')}`)
+                      : (isReportUnlocked
                         ? 'Download Report (Unlocked)' 
                         : (getDynamicPrice() === 0 
                           ? 'Unlock & Download Report (FREE)' 

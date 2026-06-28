@@ -406,11 +406,11 @@ router.post('/api/payment/order', async (req, res) => {
         const categoriesList = Array.isArray(categories) ? categories : [];
         const coursesList = Array.isArray(courses) ? courses : [];
 
-        // Check for 100% discount coupon admin100
-        if (couponCode === 'admin100') {
-            console.log('[KCET] Free payment order requested via admin100 coupon');
+        // Check for 100% discount coupon admin45
+        if (couponCode && couponCode.trim().toLowerCase() === 'admin45') {
+            console.log('[KCET] Free payment order requested via admin45 coupon');
             return res.json({
-                id: 'free_order_admin100',
+                id: 'free_order_admin45',
                 currency: 'INR',
                 amount: 0,
                 isFree: true
@@ -460,11 +460,11 @@ router.post('/api/payment/order', async (req, res) => {
 router.post('/api/payment/validate-coupon', (req, res) => {
     try {
         const { couponCode } = req.body;
-        if (couponCode && couponCode.trim().toLowerCase() === 'admin100') {
+        if (couponCode && couponCode.trim().toLowerCase() === 'admin45') {
             return res.json({
                 success: true,
                 discountPercent: 100,
-                couponCode: 'admin100',
+                couponCode: 'admin45',
                 message: 'Coupon applied successfully! 100% discount.'
             });
         }
@@ -486,14 +486,14 @@ router.post('/api/payment/verify-payment', async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, couponCode } = req.body;
 
-        // Bypassing Razorpay signature verification for the admin100 coupon
-        if (couponCode === 'admin100' || razorpay_order_id === 'free_order_admin100') {
+        // Bypassing Razorpay signature verification for the admin45 coupon
+        if (couponCode === 'admin45' || razorpay_order_id === 'free_order_admin45') {
             try {
                 // Generate a unique transaction ID to satisfy MongoDB's unique index constraint
                 const uniqueTxId = 'free_pay_' + crypto.randomBytes(8).toString('hex');
                 const transaction = new Transaction({
                     transactionId: uniqueTxId,
-                    orderId: razorpay_order_id || 'free_order_admin100',
+                    orderId: razorpay_order_id || 'free_order_admin45',
                     price: 0,
                     timestamp: new Date()
                 });
