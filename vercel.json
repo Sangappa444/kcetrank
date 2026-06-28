@@ -1,21 +1,28 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "kcetmain/kcet/backend/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "kcetmain/kcet/backend/views/**",
-          "kcetmain/kcet/backend/public/**"
-        ]
-      }
+  "installCommand": "npm install && cd kcetmain/kcet/backend && npm install && cd ../../../frontend && npm install",
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/dist",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30,
+      "includeFiles": "kcetmain/kcet/backend/**"
     }
+  },
+  "rewrites": [
+    { "source": "/kcet/api/auth/:path*", "destination": "/api/index.js" },
+    { "source": "/kcet/api/:path*", "destination": "/api/index.js" },
+    { "source": "/kcet", "destination": "/api/index.js" },
+    { "source": "/:path*", "destination": "/index.html" }
   ],
-  "routes": [
+  "headers": [
     {
-      "src": "/(.*)",
-      "dest": "kcetmain/kcet/backend/server.js"
+      "source": "/kcet/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,POST,PUT,DELETE,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "Content-Type,Authorization" }
+      ]
     }
   ]
 }
