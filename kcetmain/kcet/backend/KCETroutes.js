@@ -568,6 +568,128 @@ router.post('/api/payment/verify-payment', async (req, res) => {
     }
 });
 
+/**
+ * POST /kcet/api/create-order
+ * Creates a Razorpay order for payment processing
+ * Body: { amount (paise), currency, receipt }
+ */
+router.post('/api/create-order', async (req, res) => {
+    try {
+        const { amount, currency, receipt } = req.body;
+
+        // Validation: Minimum 100 paise (1 INR)
+        if (!amount || amount < 100) {
+            return res.status(400).json({ error: 'Amount must be at least 100 paise' });
+        }
+
+        const options = {
+            amount: parseInt(amount, 10),
+            currency: currency || 'INR',
+            receipt: receipt || 'receipt_order_kcet_' + Math.random().toString(36).substring(7)
+        };
+
+        const order = await razorpayInstance.orders.create(options);
+
+        if (!order) {
+            return res.status(500).json({ error: 'Failed to create payment order' });
+        }
+
+        console.log('[KCET] Payment order created via /api/create-order:', order.id, 'Amount:', order.amount);
+        res.json({
+            order_id: order.id,
+            amount: order.amount,
+            currency: order.currency
+        });
+
+    } catch (error) {
+        console.error('[KCET] Create Order Error:', error.message);
+        res.status(500).json({ error: 'Payment initialization failed', details: error.message });
+    }
+});
+
+/**
+ * POST /kcet/api/verify-payment
+ * Verifies Razorpay signature and saves transaction to MongoDB
+ */
+router.post('/api/verify-payment', async (req, res) => {
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature, couponCode, amount } = req.body;
+
+        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+            return res.status(400).json({ success: false, error: 'Missing required payment fields' });
+        }
+
+        // Bypassing Razorpay signature verification for the admin45 coupon
+        if (couponCode === 'admin45' || razorpay_order_id === 'free_order_admin45') {
+            try {
+                const uniqueTxId = 'free_pay_' + crypto.randomBytes(8).toString('hex');
+                const transaction = new Transaction({
+                    transactionId: uniqueTxId,
+                    orderId: razorpay_order_id || 'free_order_admin45',
+                    price: 0,
+                    timestamp: new Date()
+                });
+
+                await transaction.save();
+                console.log('[KCET] Coupon-based free purchase verified and saved with ID:', uniqueTxId);
+
+                return res.json({
+                    success: true,
+                    message: 'Payment verified successfully (Coupon Applied)'
+                });
+            } catch (dbError) {
+                console.error('[KCET] Database Error saving transaction:', dbError.message);
+                return res.status(500).json({
+                    success: false,
+                    error: 'Failed to save transaction',
+                    details: dbError.message
+                });
+            }
+        }
+
+        const sign = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSign = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || 'dummy_secret_123')
+            .update(sign.toString())
+            .digest("hex");
+
+        if (razorpay_signature === expectedSign) {
+            try {
+                // If amount is passed in paise, convert to INR for DB storage, else use default pricing
+                const price = amount ? amount / 100 : 99;
+
+                const transaction = new Transaction({
+                    transactionId: razorpay_payment_id,
+                    orderId: razorpay_order_id,
+                    price: price,
+                    timestamp: new Date()
+                });
+
+                await transaction.save();
+
+                console.log('[KCET] Payment verified and saved via /api/verify-payment:', razorpay_payment_id);
+
+                return res.json({
+                    success: true,
+                    message: 'Payment verified successfully'
+                });
+            } catch (dbError) {
+                console.error('[KCET] Database Error saving transaction:', dbError.message);
+                return res.status(500).json({
+                    success: false,
+                    error: 'Failed to save transaction',
+                    details: dbError.message
+                });
+            }
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid payment signature' });
+        }
+    } catch (error) {
+        console.error('[KCET] Verification Error:', error.message);
+        res.status(500).json({ success: false, error: 'Verification failed', details: error.message });
+    }
+});
+
 // ===== SUBSCRIPTION API ENDPOINTS =====
 
 /**

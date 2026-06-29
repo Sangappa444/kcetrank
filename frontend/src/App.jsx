@@ -56,6 +56,11 @@ function App() {
   // FAQ state
   const [faqExpanded, setFaqExpanded] = useState({});
 
+  // Payment and Compliance states
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [activePolicyModal, setActivePolicyModal] = useState(null);
+
   const rkCategories = [
     '1G', '1K', '1R', '2AG', '2AK', '2AR', '2BG', '2BK', '2BR', 
     '3AG', '3AK', '3AR', '3BG', '3BK', '3BR', 
@@ -110,6 +115,11 @@ function App() {
     const savedShortlist = localStorage.getItem('kcet_shortlist');
     if (savedShortlist) {
       setShortlist(JSON.parse(savedShortlist));
+    }
+
+    const unlocked = localStorage.getItem('kcet_unlimited_access');
+    if (unlocked) {
+      setIsUnlocked(true);
     }
   }, []);
 
@@ -611,10 +621,203 @@ function App() {
     setCouponSuccess('');
     setCouponError('');
     localStorage.removeItem('kcet_unlimited_access');
+    setIsUnlocked(false);
   };
 
-  // Wrapper for PDF Download — direct download, no payment required
+  // Razorpay Payment Integration
+  const handlePaymentCheckout = async () => {
+    const price = getDynamicPrice();
+    if (price === 0) {
+      // 100% discount, unlock for free
+      localStorage.setItem('kcet_unlimited_access', Date.now().toString());
+      setIsUnlocked(true);
+      alert('Report unlocked successfully with coupon!');
+      
+      // Sync with backend (optional log)
+      try {
+        await axios.post(`${API_BASE_URL}/verify-payment`, {
+          couponCode: appliedCoupon || 'admin45',
+          razorpay_order_id: 'free_order_admin45',
+          razorpay_payment_id: 'free_payment_' + Math.random().toString(36).substring(7),
+          razorpay_signature: 'free_signature',
+          amount: 0
+        });
+      } catch (err) {
+        console.error("Failed to log free transaction to backend:", err);
+      }
+      return;
+    }
+
+    setPaymentLoading(true);
+    try {
+      // 1. Create order on backend
+      const orderResponse = await axios.post(`${API_BASE_URL}/create-order`, {
+        amount: price * 100, // in paise
+        currency: 'INR',
+        receipt: 'receipt_order_kcet_' + Math.random().toString(36).substring(7)
+      });
+
+      const { order_id, amount, currency } = orderResponse.data;
+
+      // 2. Configure Razorpay options
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T7SWo1BETk7mSh',
+        amount: amount,
+        currency: currency,
+        name: 'EDU YODHA',
+        description: 'KCET Cutoff Match Prediction Report',
+        order_id: order_id,
+        handler: async function (response) {
+          setPaymentLoading(true);
+          try {
+            // 3. Verify signature on backend
+            const verifyResponse = await axios.post(`${API_BASE_URL}/verify-payment`, {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount: amount
+            });
+
+            if (verifyResponse.data.success) {
+              localStorage.setItem('kcet_unlimited_access', Date.now().toString());
+              setIsUnlocked(true);
+              alert('Payment successful! Your report is now unlocked.');
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (verifyErr) {
+            console.error('Verification error:', verifyErr);
+            alert('Error verifying payment: ' + (verifyErr.response?.data?.error || verifyErr.message));
+          } finally {
+            setPaymentLoading(false);
+          }
+        },
+        prefill: {
+          name: 'KCET Candidate',
+          email: 'candidate@example.com',
+          contact: '9999999999'
+        },
+        theme: {
+          color: '#4F46E5'
+        },
+        modal: {
+          ondismiss: function () {
+            setPaymentLoading(false);
+            console.log('Payment modal closed by user.');
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        alert('Payment failed: ' + response.error.description);
+        setPaymentLoading(false);
+      });
+      rzp.open();
+    } catch (err) {
+      console.error('Error initiating payment:', err);
+      alert('Failed to initialize payment: ' + (err.response?.data?.error || err.message));
+      setPaymentLoading(false);
+    }
+  };
+
+  // Policy modal content renderer for Razorpay Compliance
+  const getPolicyTitle = (type) => {
+    switch (type) {
+      case 'about': return 'About Us';
+      case 'contact': return 'Contact Us';
+      case 'terms': return 'Terms & Conditions';
+      case 'privacy': return 'Privacy Policy';
+      case 'refund': return 'Refund & Cancellation Policy';
+      case 'shipping': return 'Shipping & Delivery Policy';
+      default: return '';
+    }
+  };
+
+  const renderPolicyContent = (type) => {
+    switch (type) {
+      case 'about':
+        return (
+          <div>
+            <p><strong>EDU YODHA</strong> is a professional educational portal designed to assist students and parents in navigating the KCET (Karnataka Common Entrance Test) counselling process.</p>
+            <p>We provide analytical tools, including a Cutoff Predictor and an Option Entry Planner, using historical KEA data to help students make informed decisions. Our goal is to simplify college choice planning and maximize admission chances.</p>
+          </div>
+        );
+      case 'contact':
+        return (
+          <div>
+            <p>For any queries, support, or grievances regarding our services, please contact us at:</p>
+            <ul>
+              <li><strong>Business Name:</strong> EDU YODHA</li>
+              <li><strong>Contact Person:</strong> Sangappa</li>
+              <li><strong>Email:</strong> support@eduyodha.in</li>
+              <li><strong>Phone:</strong> +91 9481234567</li>
+              <li><strong>Address:</strong> #14, 2nd Cross, Near KEA Office, Malleshwaram, Bangalore, Karnataka - 560003</li>
+              <li><strong>Operating Hours:</strong> Monday to Saturday, 9:00 AM to 6:00 PM IST</li>
+            </ul>
+          </div>
+        );
+      case 'terms':
+        return (
+          <div>
+            <p>Welcome to EDU YODHA. By accessing and using our website, you agree to comply with and be bound by the following terms:</p>
+            <ul>
+              <li>The information provided by our predictor is based on historical KCET cutoff data. It is intended for planning purposes only and does not guarantee actual allotment.</li>
+              <li>All intellectual property rights of the website content, design, and tools belong to EDU YODHA.</li>
+              <li>Users are responsible for maintaining the confidentiality of their login credentials.</li>
+              <li>We reserve the right to modify or terminate our services at any time without prior notice.</li>
+            </ul>
+          </div>
+        );
+      case 'privacy':
+        return (
+          <div>
+            <p>At EDU YODHA, we value your privacy and are committed to protecting your personal data:</p>
+            <ul>
+              <li>We collect basic user information such as name, email address, phone number, and KCET rank to provide and improve our prediction services.</li>
+              <li>We do not share, sell, or disclose your personal information to third parties except as required to process payments via Razorpay.</li>
+              <li>We implement industry-standard security measures (SSL, secure databases) to protect your data from unauthorized access.</li>
+            </ul>
+          </div>
+        );
+      case 'refund':
+        return (
+          <div>
+            <p>Our refund policy is simple and transparent:</p>
+            <ul>
+              <li>Since EDU YODHA provides digital services (instant match prediction reports and PDF downloads), cancellation is not possible once a transaction is initiated.</li>
+              <li>If your payment was successful but the PDF report failed to download or generate due to a technical error, please contact us at <strong>support@eduyodha.in</strong> with your payment ID. We will resolve the issue or process a full refund within 5-7 business days.</li>
+              <li>Refund requests for reasons other than technical delivery failure are not applicable due to the immediate digital consumption of the product.</li>
+            </ul>
+          </div>
+        );
+      case 'shipping':
+        return (
+          <div>
+            <p>Shipping & Delivery is not applicable for EDU YODHA services:</p>
+            <ul>
+              <li>All services and products offered on this platform are 100% digital.</li>
+              <li>Cutoff prediction reports and Option Entry lists are generated instantly on-screen and are available for PDF download immediately upon successful payment confirmation.</li>
+              <li>No physical delivery or shipping is required.</li>
+            </ul>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Wrapper for PDF Download — check payment lock
   const downloadReportPDF = async (type = 'results') => {
+    if (type === 'results' && !isUnlocked) {
+      alert('Please unlock the PDF report using the payment panel below.');
+      const paymentPanel = document.querySelector('.payment-panel');
+      if (paymentPanel) {
+        paymentPanel.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
+    }
+
     const itemsToPrint = type === 'shortlist' ? shortlist : getProcessedResults();
     
     if (itemsToPrint.length === 0) {
@@ -1155,19 +1358,110 @@ function App() {
             <div className="payment-panel glass-panel">
               <div className="payment-layout">
                 <div className="pricing-details-col">
-                  <h3 className="lock-title">📄 Cutoff PDF Report</h3>
-                  <p className="payment-info-text">Download full 3-year cutoff history sheet (2023-2025 rounds side-by-side) in high-resolution landscape A4 format.</p>
+                  <h3 className="lock-title">
+                    {isUnlocked ? '🔓 Cutoff PDF Report Unlocked' : '🔒 Cutoff PDF Report'}
+                  </h3>
+                  <p className="payment-info-text">
+                    {isUnlocked 
+                      ? 'You have full access! Download the complete 3-year cutoff history sheet (2023-2025 rounds side-by-side) in high-resolution landscape A4 format.'
+                      : 'Unlock the complete 3-year cutoff history sheet (2023-2025 rounds side-by-side) in high-resolution landscape A4 format.'}
+                  </p>
+                  
+                  {!isUnlocked && (
+                    <div className="pricing-breakdown">
+                      <div className="breakdown-item">
+                        <span>Base Predictor Report</span>
+                        <span>₹99</span>
+                      </div>
+                      {selectedCategories.length > 1 && (
+                        <div className="breakdown-item">
+                          <span>Extra Categories (+{selectedCategories.length - 1})</span>
+                          <span>+₹{(selectedCategories.length - 1) * 30}</span>
+                        </div>
+                      )}
+                      {selectedCourses.length > 1 && (
+                        <div className="breakdown-item">
+                          <span>Extra Courses (+{selectedCourses.length - 1})</span>
+                          <span>+₹{(selectedCourses.length - 1) * 10}</span>
+                        </div>
+                      )}
+                      {discountPercent > 0 && (
+                        <div className="breakdown-item discount">
+                          <span>Coupon Discount ({discountPercent}%)</span>
+                          <span>-₹{((99 + (selectedCategories.length > 1 ? (selectedCategories.length - 1) * 30 : 0) + (selectedCourses.length > 1 ? (selectedCourses.length - 1) * 10 : 0)) * discountPercent) / 100}</span>
+                        </div>
+                      )}
+                      <div className="price-total">
+                        <span>Total Amount</span>
+                        <span className="total-amount-val">₹{getDynamicPrice()}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
                 <div className="coupon-actions-col">
-                  <button 
-                    type="button"
-                    onClick={() => downloadReportPDF('results')} 
-                    className="btn predict-submit-btn payment-cta-btn unlocked"
-                    disabled={pdfLoading}
-                  >
-                    <Download size={18} />
-                    {pdfLoading ? 'Generating PDF...' : 'Download Report (Free)'}
-                  </button>
+                  {isUnlocked ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+                      <button 
+                        type="button"
+                        onClick={() => downloadReportPDF('results')} 
+                        className="btn predict-submit-btn payment-cta-btn unlocked"
+                        disabled={pdfLoading}
+                      >
+                        <Download size={18} />
+                        {pdfLoading ? 'Generating PDF...' : 'Download Report'}
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Coupon input section */}
+                      {appliedCoupon ? (
+                        <div className="applied-coupon-box">
+                          <span className="coupon-label">Applied Coupon</span>
+                          <span className="coupon-success-msg">Code: {appliedCoupon.toUpperCase()} ({discountPercent}% OFF)</span>
+                          <button type="button" className="btn-remove-coupon" onClick={handleRemoveCoupon}>
+                            Remove Coupon
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="coupon-input-wrapper">
+                          <span className="coupon-label">Have a coupon?</span>
+                          <div className="coupon-field-row">
+                            <input 
+                              type="text" 
+                              placeholder="Enter coupon" 
+                              value={couponCode} 
+                              onChange={(e) => setCouponCode(e.target.value)}
+                            />
+                            <button type="button" className="btn-apply-coupon" onClick={handleApplyCoupon}>
+                              Apply
+                            </button>
+                          </div>
+                          {couponError && <span className="coupon-error-msg">{couponError}</span>}
+                          {couponSuccess && <span className="coupon-success-msg">{couponSuccess}</span>}
+                        </div>
+                      )}
+
+                      {/* Payment Action Button */}
+                      <button 
+                        type="button"
+                        onClick={handlePaymentCheckout} 
+                        className={`btn predict-submit-btn payment-cta-btn ${getDynamicPrice() === 0 ? 'unlocked' : ''}`}
+                        disabled={pdfLoading || paymentLoading}
+                      >
+                        {paymentLoading ? (
+                          'Initializing...'
+                        ) : getDynamicPrice() === 0 ? (
+                          <>
+                            <Download size={18} />
+                            Get Report (Free)
+                          </>
+                        ) : (
+                          `Pay ₹${getDynamicPrice()} & Unlock`
+                        )}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -1396,8 +1690,35 @@ function App() {
 
       {/* Footer */}
       <footer>
-        <p>© 2026 EDU YODHA. All rights reserved. Cutoff trends are compiled from KEA official statistics.</p>
+        <div className="footer-divider">
+          <div className="footer-links">
+            <button type="button" className="footer-link-btn" onClick={() => setActivePolicyModal('about')}>About Us</button>
+            <button type="button" className="footer-link-btn" onClick={() => setActivePolicyModal('contact')}>Contact Us</button>
+            <button type="button" className="footer-link-btn" onClick={() => setActivePolicyModal('terms')}>Terms & Conditions</button>
+            <button type="button" className="footer-link-btn" onClick={() => setActivePolicyModal('privacy')}>Privacy Policy</button>
+            <button type="button" className="footer-link-btn" onClick={() => setActivePolicyModal('refund')}>Refund & Cancellation Policy</button>
+            <button type="button" className="footer-link-btn" onClick={() => setActivePolicyModal('shipping')}>Shipping & Delivery Policy</button>
+          </div>
+          <p>© 2026 EDU YODHA. All rights reserved. Cutoff trends are compiled from KEA official statistics.</p>
+        </div>
       </footer>
+
+      {/* Policy Modal */}
+      {activePolicyModal && (
+        <div className="policy-modal-overlay" onClick={() => setActivePolicyModal(null)}>
+          <div className="policy-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="policy-modal-header">
+              <h3>{getPolicyTitle(activePolicyModal)}</h3>
+              <button type="button" className="policy-modal-close" onClick={() => setActivePolicyModal(null)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="policy-modal-body">
+              {renderPolicyContent(activePolicyModal)}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
