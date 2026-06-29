@@ -751,7 +751,7 @@ function App() {
               <li><strong>Business Name:</strong> EDU YODHA</li>
               <li><strong>Contact Person:</strong> Sangappa</li>
               <li><strong>Email:</strong> support@eduyodha.in</li>
-              <li><strong>Phone:</strong> +91 9481234567</li>
+              <li><strong>Phone:</strong> +91 9353982607</li>
               <li><strong>Address:</strong> #14, 2nd Cross, Near KEA Office, Malleshwaram, Bangalore, Karnataka - 560003</li>
               <li><strong>Operating Hours:</strong> Monday to Saturday, 9:00 AM to 6:00 PM IST</li>
             </ul>
