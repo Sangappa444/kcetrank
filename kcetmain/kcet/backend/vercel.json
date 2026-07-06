@@ -1,18 +1,9 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "KCETserver.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["public/**", "views/**"]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/KCETserver.js"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ]
 }
