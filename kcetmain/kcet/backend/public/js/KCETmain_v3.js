@@ -6,13 +6,17 @@ const API_BASE_URL = '/kcet/api';
 const rkCategories = [
   '1G', '1K', '1R', '2AG', '2AK', '2AR', '2BG', '2BK', '2BR',
   '3AG', '3AK', '3AR', '3BG', '3BK', '3BR',
-  'GM', 'GMK', 'GMR', 'SCG', 'SCK', 'SCR', 'STG', 'STK', 'STR'
+  'GM', 'GMK', 'GMR', 'SCG', 'SCK', 'SCR', 'STG', 'STK', 'STR',
+  'SC1G', 'SC1K', 'SC1R', 'SC2G', 'SC2K', 'SC2R', 
+  'SC3G', 'SC3K', 'SC3R', 'SC4G', 'SC4K', 'SC4R'
 ];
 
 const hkCategories = [
   '1H', '1KH', '1RH', '2AH', '2AKH', '2ARH', '2BH', '2BKH', '2BRH',
   '3AH', '3AKH', '3ARH', '3BH', '3BKH', '3BRH',
-  'GMH', 'GMKH', 'GMRH', 'SCH', 'SCKH', 'SCRH', 'STH', 'STKH', 'STRH'
+  'GMH', 'GMKH', 'GMRH', 'SCH', 'SCKH', 'SCRH', 'STH', 'STKH', 'STRH',
+  'SCH1G', 'SCH1K', 'SCH1R', 'SCH2G', 'SCH2K', 'SCH2R', 
+  'SCH3G', 'SCH3K', 'SCH3R', 'SCH4G', 'SCH4K', 'SCH4R'
 ];
 
 let selectedCategories = [];

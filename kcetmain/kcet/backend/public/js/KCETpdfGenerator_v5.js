@@ -71,7 +71,7 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, selected
 
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text('Full cutoff history for 2023, 2024, and 2025 (Rounds 1–3)', 14, yOffset);
+    doc.text('Full cutoff history for 2023, 2024, 2025, and 2026 (Mock Allotment)', 14, yOffset);
 
     const grouped = {};
     rows.forEach(r => {
@@ -84,11 +84,16 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, selected
           '2023_1': '-', '2023_2': '-', '2023_3': '-',
           '2024_1': '-', '2024_2': '-', '2024_3': '-',
           '2025_1': '-', '2025_2': '-', '2025_3': '-',
+          '2026_Mock': '-',
         };
       }
       if (r.year && r.round) {
         grouped[key].college_name = r.college_name;
-        grouped[key][`${r.year}_${r.round}`] = r.cutoff_rank_num || r.cutoff_rank;
+        // Normalize 'mock' to 'Mock'
+        let roundStr = r.round.toString();
+        if (roundStr.toLowerCase() === 'mock') roundStr = 'Mock';
+        
+        grouped[key][`${r.year}_${roundStr}`] = r.cutoff_rank_num || r.cutoff_rank;
       }
     });
 
@@ -96,7 +101,8 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, selected
       const values = [
         g['2023_1'], g['2023_2'], g['2023_3'],
         g['2024_1'], g['2024_2'], g['2024_3'],
-        g['2025_1'], g['2025_2'], g['2025_3']
+        g['2025_1'], g['2025_2'], g['2025_3'],
+        g['2026_Mock']
       ];
       let min = Number.MAX_SAFE_INTEGER;
       for (let i = 0; i < values.length; i++) {
@@ -132,7 +138,8 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, selected
       'Chance',
       '2023 R1', '2023 R2', '2023 R3',
       '2024 R1', '2024 R2', '2024 R3',
-      '2025 R1', '2025 R2', '2025 R3'
+      '2025 R1', '2025 R2', '2025 R3',
+      '2026 Mock'
     ];
 
     const groupsArray = Object.values(grouped).map(g => {
@@ -152,7 +159,8 @@ async function generatePDF({ rank, selectedCategories, selectedCourses, selected
         g.chance,
         g['2023_1'], g['2023_2'], g['2023_3'],
         g['2024_1'], g['2024_2'], g['2024_3'],
-        g['2025_1'], g['2025_2'], g['2025_3']
+        g['2025_1'], g['2025_2'], g['2025_3'],
+        g['2026_Mock']
       ]);
 
     console.log('[PDF] Total table rows to render:', tableRows.length);
