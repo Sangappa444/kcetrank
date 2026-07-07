@@ -1,6 +1,6 @@
 {
   "name": "kcetrank-root",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Root package for Vercel deployment of KCET Rank Predictor",
   "main": "backend/server.js",
   "scripts": {
