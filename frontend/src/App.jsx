@@ -5,7 +5,7 @@ import {
   ArrowUp, ArrowDown, SlidersHorizontal, Moon, Sun, 
   TrendingUp, HelpCircle, ChevronDown, ChevronUp, Check, X,
   Cpu, Leaf, Stethoscope, Pill, HeartPulse, 
-  Activity, GraduationCap, Award
+  Activity, GraduationCap, Award, Lock, CheckCircle2
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -56,8 +56,10 @@ function App() {
   // FAQ state
   const [faqExpanded, setFaqExpanded] = useState({});
 
-  // Payment and Compliance states
-  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(
+    localStorage.getItem('kcet_unlocked_admin100') === 'true' || 
+    localStorage.getItem('kcet_unlimited_access') !== null
+  );
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [activePolicyModal, setActivePolicyModal] = useState(null);
 
@@ -603,11 +605,13 @@ function App() {
     
     // Client-side validation — works instantly, no backend dependency
     const code = couponCode.trim().toLowerCase();
-    if (code === 'admin45') {
-      setAppliedCoupon('admin45');
+    if (code === 'admin100' || code === 'admin45') {
+      setAppliedCoupon(code);
       setDiscountPercent(100);
-      setCouponSuccess('Coupon applied successfully! 100% discount.');
+      setCouponSuccess('Coupon applied successfully! Report unlocked.');
+      setIsUnlocked(true);
       // Grant unlimited access immediately
+      localStorage.setItem('kcet_unlocked_admin100', 'true');
       localStorage.setItem('kcet_unlimited_access', Date.now().toString());
     } else {
       setCouponError('Invalid coupon code.');
@@ -621,105 +625,12 @@ function App() {
     setCouponSuccess('');
     setCouponError('');
     localStorage.removeItem('kcet_unlimited_access');
+    localStorage.removeItem('kcet_unlocked_admin100');
     setIsUnlocked(false);
   };
 
-  // Razorpay Payment Integration
-  const handlePaymentCheckout = async () => {
-    const price = getDynamicPrice();
-    if (price === 0) {
-      // 100% discount, unlock for free
-      localStorage.setItem('kcet_unlimited_access', Date.now().toString());
-      setIsUnlocked(true);
-      alert('Report unlocked successfully with coupon!');
-      
-      // Sync with backend (optional log)
-      try {
-        await axios.post(`${API_BASE_URL}/verify-payment`, {
-          couponCode: appliedCoupon || 'admin45',
-          razorpay_order_id: 'free_order_admin45',
-          razorpay_payment_id: 'free_payment_' + Math.random().toString(36).substring(7),
-          razorpay_signature: 'free_signature',
-          amount: 0
-        });
-      } catch (err) {
-        console.error("Failed to log free transaction to backend:", err);
-      }
-      return;
-    }
-
-    setPaymentLoading(true);
-    try {
-      // 1. Create order on backend
-      const orderResponse = await axios.post(`${API_BASE_URL}/create-order`, {
-        amount: price * 100, // in paise
-        currency: 'INR',
-        receipt: 'receipt_order_kcet_' + Math.random().toString(36).substring(7)
-      });
-
-      const { order_id, amount, currency } = orderResponse.data;
-
-      // 2. Configure Razorpay options
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_T7SWo1BETk7mSh',
-        amount: amount,
-        currency: currency,
-        name: 'EDU YODHA',
-        description: 'KCET Cutoff Match Prediction Report',
-        order_id: order_id,
-        handler: async function (response) {
-          setPaymentLoading(true);
-          try {
-            // 3. Verify signature on backend
-            const verifyResponse = await axios.post(`${API_BASE_URL}/verify-payment`, {
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              amount: amount
-            });
-
-            if (verifyResponse.data.success) {
-              localStorage.setItem('kcet_unlimited_access', Date.now().toString());
-              setIsUnlocked(true);
-              alert('Payment successful! Your report is now unlocked.');
-            } else {
-              alert('Payment verification failed. Please contact support.');
-            }
-          } catch (verifyErr) {
-            console.error('Verification error:', verifyErr);
-            alert('Error verifying payment: ' + (verifyErr.response?.data?.error || verifyErr.message));
-          } finally {
-            setPaymentLoading(false);
-          }
-        },
-        prefill: {
-          name: 'KCET Candidate',
-          email: 'candidate@example.com',
-          contact: '9999999999'
-        },
-        theme: {
-          color: '#4F46E5'
-        },
-        modal: {
-          ondismiss: function () {
-            setPaymentLoading(false);
-            console.log('Payment modal closed by user.');
-          }
-        }
-      };
-
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', function (response) {
-        alert('Payment failed: ' + response.error.description);
-        setPaymentLoading(false);
-      });
-      rzp.open();
-    } catch (err) {
-      console.error('Error initiating payment:', err);
-      alert('Failed to initialize payment: ' + (err.response?.data?.error || err.message));
-      setPaymentLoading(false);
-    }
-  };
+  // Razorpay Payment Integration is disabled (Free coupon only)
+  const handlePaymentCheckout = async () => {};
 
   // Policy modal content renderer for Razorpay Compliance
   const getPolicyTitle = (type) => {
@@ -1425,11 +1336,11 @@ function App() {
                         </div>
                       ) : (
                         <div className="coupon-input-wrapper">
-                          <span className="coupon-label">Have a coupon?</span>
+                          <span className="coupon-label" style={{ color: '#f59e0b', fontWeight: 'bold' }}>🔒 Locked: Enter coupon code admin100 to unlock</span>
                           <div className="coupon-field-row">
                             <input 
                               type="text" 
-                              placeholder="Enter coupon" 
+                              placeholder="Enter coupon (e.g. admin100)" 
                               value={couponCode} 
                               onChange={(e) => setCouponCode(e.target.value)}
                             />
@@ -1441,25 +1352,6 @@ function App() {
                           {couponSuccess && <span className="coupon-success-msg">{couponSuccess}</span>}
                         </div>
                       )}
-
-                      {/* Payment Action Button */}
-                      <button 
-                        type="button"
-                        onClick={handlePaymentCheckout} 
-                        className={`btn predict-submit-btn payment-cta-btn ${getDynamicPrice() === 0 ? 'unlocked' : ''}`}
-                        disabled={pdfLoading || paymentLoading}
-                      >
-                        {paymentLoading ? (
-                          'Initializing...'
-                        ) : getDynamicPrice() === 0 ? (
-                          <>
-                            <Download size={18} />
-                            Get Report (Free)
-                          </>
-                        ) : (
-                          `Pay ₹${getDynamicPrice()} & Unlock`
-                        )}
-                      </button>
                     </>
                   )}
                 </div>

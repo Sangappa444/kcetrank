@@ -646,6 +646,34 @@
             }
         });
 
+        window.verifyCoupon = function() {
+            const input = document.getElementById('coupon-code-input');
+            const msg = document.getElementById('coupon-msg');
+            if (!input) return;
+            const code = input.value.trim().toLowerCase();
+            
+            if (code === 'admin100' || code === 'admin45') {
+                localStorage.setItem('kcet_unlocked_admin100', 'true');
+                if (msg) {
+                    msg.style.color = '#10b981';
+                    msg.innerHTML = '✓ Coupon applied successfully! Unlocking report...';
+                }
+                setTimeout(() => {
+                    renderResults();
+                }, 1000);
+            } else {
+                if (msg) {
+                    msg.style.color = '#ef4444';
+                    msg.innerHTML = '✗ Invalid coupon code. Please try again.';
+                }
+            }
+        };
+
+        window.removeCoupon = function() {
+            localStorage.removeItem('kcet_unlocked_admin100');
+            renderResults();
+        };
+
         function renderResults() {
             const resultsContainer = document.getElementById('results-section');
             if (results.length === 0) {
@@ -691,16 +719,49 @@
                 `;
             });
 
+            const unlocked = localStorage.getItem('kcet_unlocked_admin100') === 'true';
+
+            let lockPanelHtml = '';
+            if (unlocked) {
+                lockPanelHtml = `
+                    <div class="lock-panel glass-panel" style="margin: 2rem 0; padding: 2rem; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); background: rgba(15, 23, 42, 0.4); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <h3 style="color: #10b981; font-weight: 600; font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="check-circle" style="width: 20px; height: 20px; color: #10b981;"></i> Report Unlocked!
+                        </h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">You have unlocked the full PDF report with coupon code <strong>admin100</strong>.</p>
+                        <div style="display: flex; gap: 1rem; justify-content: center; align-items: center;">
+                            <button onclick="generatePDF()" id="pdf-download-btn" class="btn" style="background: #10b981; max-width: 320px; margin: 0; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <i data-lucide="download" style="width: 18px; height: 18px;"></i> Download ${activeCategory} Cutoff Report
+                            </button>
+                            <button onclick="removeCoupon()" class="btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; max-width: 150px; margin: 0; padding: 0.6rem 1rem;">
+                                Lock Again
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                lockPanelHtml = `
+                    <div class="lock-panel glass-panel" style="margin: 2rem 0; padding: 2rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(15, 23, 42, 0.4); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <h3 style="color: var(--text-primary); font-weight: 600; font-size: 1.25rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <i data-lucide="lock" style="width: 20px; height: 20px; color: #f59e0b;"></i> PDF Report Locked
+                        </h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem;">Please enter the coupon code to unlock and download the full 3-year cutoff report.</p>
+                        <div style="display: flex; gap: 0.75rem; max-width: 400px; margin: 0 auto 0.5rem auto; width: 100%; justify-content: center; align-items: center;">
+                            <input type="text" id="coupon-code-input" placeholder="Enter coupon code (e.g. admin100)..." style="flex: 1; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.2); color: white; outline: none; font-size: 0.95rem;">
+                            <button onclick="verifyCoupon()" class="btn" style="padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; width: auto; margin-top: 0;">Apply</button>
+                        </div>
+                        <div id="coupon-msg" style="font-size: 0.9rem; margin-top: 0.5rem; font-weight: 500;"></div>
+                    </div>
+                `;
+            }
+
             resultsContainer.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                     <h2 style="font-weight: 600; font-size: 1.75rem;">
-                        Prediction Results (${results.length} matched) <span style="font-size: 0.9rem; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 500; margin-left: 0.5rem;"><i data-lucide="check" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Free Report</span>
+                        Prediction Results (${results.length} matched)
                     </h2>
-                    <button onclick="generatePDF()" id="pdf-download-btn" class="btn btn-download" style="background: #10b981; height: auto; padding: 0.6rem 1.2rem; margin-top: 0;">
-                        <i data-lucide="download" style="width: 18px; height: 18px;"></i>
-                        Download ${activeCategory} Cutoff Report
-                    </button>
                 </div>
+                ${lockPanelHtml}
                 <div class="results-grid">
                     ${cardsHtml}
                 </div>
@@ -709,6 +770,12 @@
         }
 
         async function generatePDF() {
+            const isUnlocked = localStorage.getItem('kcet_unlocked_admin100') === 'true';
+            if (!isUnlocked) {
+                alert('Please enter coupon code admin100 to unlock and download the report.');
+                return;
+            }
+
             const downloadBtn = document.getElementById('pdf-download-btn');
             if (downloadBtn) {
                 downloadBtn.disabled = true;
