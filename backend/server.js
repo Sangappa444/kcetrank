@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
 const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
@@ -23,13 +22,35 @@ app.get('/', (req, res) => {
     res.render('index');
 });
 
-const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY, (err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-    }
-});
+let db;
+try {
+    // Try to load Node.js native sqlite module (available in Node 22.5+)
+    const { DatabaseSync } = require('node:sqlite');
+    const nativeDb = new DatabaseSync(DB_PATH);
+    db = {
+        all: (sql, params, callback) => {
+            try {
+                const stmt = nativeDb.prepare(sql);
+                const rows = stmt.all(...(params || []));
+                callback(null, rows);
+            } catch (err) {
+                callback(err);
+            }
+        }
+    };
+    console.log('Connected to SQLite database using native node:sqlite module.');
+} catch (e) {
+    console.log('Native node:sqlite module not available. Falling back to sqlite3...');
+    const sqlite3 = require('sqlite3').verbose();
+    const fallbackDb = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READONLY, (err) => {
+        if (err) {
+            console.error('Error connecting to database via sqlite3:', err.message);
+        } else {
+            console.log('Connected to SQLite database via sqlite3.');
+        }
+    });
+    db = fallbackDb;
+}
 
 function getCategoryForCourse(courseName) {
     const name = courseName.toUpperCase();
